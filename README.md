@@ -2,10 +2,9 @@
 
 # 이승주
 
-### Platform Product Manager · 서비스 기획
+### Product Manager · 서비스 기획 주니어 PM
 
-복잡한 현장 문제를 사용자 여정과 운영 구조로 풀고,<br/>
-**기획부터 작동하는 MVP까지 완성합니다.**
+복잡한 현장 문제를 사용자 여정과 운영 구조로 풀고,**기획부터 MVP 사이트 구현까지 완성합니다.**
 
 [**포트폴리오 PDF**](https://portfolio-dannylee.vercel.app/file/IT_PM_Portfolio_LeeSeungjoo.pdf#page=1&view=FitH)　·　[**제품 데모**](https://portfolio-dannylee.vercel.app/demo)　·　[**배포 MVP**](https://portfolio-dannylee.vercel.app)
 
@@ -13,26 +12,19 @@
 
 ---
 
-| PROFILE | |
-|---|---|
-| **지원 분야** | 플랫폼·마켓플레이스 PM / 서비스 기획 |
-| **경험 기반** | 복지·공공 현장 4년 · 3인 제품 프로젝트 기획 리드 |
-| **핵심 강점** | 양면 사용자 설계 · 이해관계자 조율 · MVP 실행 |
-| **업무 범위** | 문제 정의 → PRD → UX·운영 정책 → 구현·배포 |
-
 ## 제가 잘하는 일
 
 <table>
 <tr>
-<td width="33%" align="center"><strong>🎯 문제 정의</strong><br/><br/>현상을 관찰하고<br/>해결 가능한 구조로 전환</td>
-<td width="33%" align="center"><strong>⚖️ 플랫폼 설계</strong><br/><br/>양쪽 사용자의 동기와<br/>신뢰·이탈 조건 설계</td>
-<td width="33%" align="center"><strong>🚀 끝까지 실행</strong><br/><br/>문서와 화면을 넘어<br/>작동하는 MVP까지 완결</td>
+<td width="33%" align="center"><strong>🎯 문제 정의</strong><br/><br/>현상을 관찰하고 해결 가능한 구조로 전환</td>
+<td width="33%" align="center"><strong>⚖️ 플랫폼 설계</strong><br/><br/>사용자의 심리 기반으로 구조 설계</td>
+<td width="33%" align="center"><strong>🚀 프로젝트 완성</strong><br/><br/>문서와 화면을 넘어 MVP 사이트 구현까지</td>
 </tr>
 </table>
 
-## Selected Work
+## 프로젝트 소개
 
-### 01. ORBIT — 초기 팀빌딩 양면 매칭 플랫폼
+### 01. ORBIT: 부트캠프 3인 팀프로젝트 팀장 역할
 
 > 아이디어 보유자와 합류 희망자 사이의 **정보 비대칭과 합류 리스크**를 줄이는 서비스
 
@@ -42,9 +34,9 @@
 
 **핵심 흐름**　`아이디어 입력` → `프로젝트 생성` → `후보 선택` → `초대·응답` → `궁합` → `합류 합의`
 
-[제품 체험하기 →](https://portfolio-dannylee.vercel.app/demo)
+[제품 체험하기](https://portfolio-dannylee.vercel.app/demo)
 
-### 02. 임산부 불빛 배려석 — 공공 서비스·운영 설계
+### 02. 임산부 불빛 배려석: 공공 서비스·운영 설계
 
 > 개인의 배려 부족이 아닌 **필요한 사람의 이용 신호가 보이지 않는 시스템 문제**로 재정의
 
@@ -52,7 +44,7 @@
 |---|---|---|---|
 | 일반 승객과 임산부 모두 좌석 이용 의사를 판단하기 어려움 | 버튼·불빛으로 필요한 순간에만 수요 신호 전달 | 아이디어 발굴<br/>운영·예외 정책<br/>제안서 단독 작성 | 심사위원 전원 적격<br/>서울시 아이디어풀 등재 |
 
-[제안서 보기 →](https://portfolio-dannylee.vercel.app/file/%EC%9E%84%EC%82%B0%EB%B6%80_%EB%B0%B0%EB%A0%A4%EC%84%9D.pdf#page=1&view=FitH)
+[제안서 보기](https://portfolio-dannylee.vercel.app/file/%EC%9E%84%EC%82%B0%EB%B6%80_%EB%B0%B0%EB%A0%A4%EC%84%9D.pdf#page=1&view=FitH)
 
 <details>
 <summary><strong>ORBIT 제품 설계 상세 보기</strong></summary>
@@ -86,9 +78,8 @@
 
 ---
 
-<div align="center">
+<div>
 
-**이승주 · Platform Product Manager**<br/>
-📧 **wkrurwmd135@gmail.com**
+**이승주 · 서비스 기획 주니어 PM**📧 **wkrurwmd135@gmail.com**
 
 </div>

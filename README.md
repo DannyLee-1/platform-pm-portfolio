@@ -25,7 +25,7 @@
 <table>
 <tr>
 <td width="33%" align="center"><strong>🎯 문제 정의</strong><br/><br/>현상을 관찰하고<br/>해결 가능한 구조로 전환</td>
-<td width="33%" align="center"><strong>⚖️ 플랫폼 설계</strong><br/><br/>수요자·공급자의 동기와<br/>신뢰·이탈 조건을 함께 설계</td>
+<td width="33%" align="center"><strong>⚖️ 플랫폼 설계</strong><br/><br/>양쪽 사용자의 동기와<br/>신뢰·이탈 조건 설계</td>
 <td width="33%" align="center"><strong>🚀 끝까지 실행</strong><br/><br/>문서와 화면을 넘어<br/>작동하는 MVP까지 완결</td>
 </tr>
 </table>

@@ -1,0 +1,1809 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ORBIT 프로토타입 · 데스크탑 v2.0</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
+<style>
+/* ============================================================
+   ORBIT Prototype Desktop v2.0
+   기준: PRD v2.1.1 · IA v2.1.1 · UserFlow v1.1 · Wireframe v1.1 · 화면정의서 v1.0
+   브랜드 토큰(IA 퍼스널 컬러) 승계: 네이비(구조·신뢰) / 블루(수요·AI) /
+   스카이(바탕) / 청록(공급) / 그린(완료) / 보라(MVP 표기) · Pretendard
+   ============================================================ */
+:root{
+  --navy:#0F172A; --navy2:#1E293B; --slate:#475569; --slate2:#7A889B; --slate3:#AEB8C6;
+  --line:#E2E7EE; --line2:#EDF1F6; --paper:#F5F7FA; --sky:#F2F6FC; --card:#FFFFFF;
+  --demand:#2563EB; --demand-bg:#EFF5FF; --demand-line:#BFD3FF; --demand-dark:#1D4ED8;
+  --supply:#0E7C86; --supply-bg:#E6F5F6; --supply-line:#A9DCE0; --supply-dark:#0B646C;
+  --orbit:#4338CA;  --orbit-bg:#EEF0FC;  --orbit-line:#C7CBF3;
+  --green:#15803D;  --green-bg:#E9F7EF;  --green-line:#A7E0BE;
+  --mvp:#7C3AED; --mvp-bg:#F3ECFF;
+  --gate:#B45309; --gate-bg:#FEF6EA; --gate-line:#F3D9A8;
+  --post:#64748B; --post-bg:#EFF2F6;
+  --lock:#6B7280; --lock-bg:#F1F3F6;
+  --red:#B91C1C; --red-bg:#FEECEC;
+  --mono:ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
+  --shadow:0 10px 30px -18px rgba(15,23,42,.35);
+  --demoink:#0B1220;
+}
+*{box-sizing:border-box;}
+html{-webkit-text-size-adjust:100%;}
+body{
+  margin:0; background:var(--paper); color:var(--navy);
+  font-family:"Pretendard Variable","Pretendard",system-ui,-apple-system,"Apple SD Gothic Neo","Noto Sans KR","Malgun Gothic",sans-serif;
+  line-height:1.55; letter-spacing:-0.01em; font-size:14px;
+  background-image:
+    linear-gradient(rgba(148,163,184,.05) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(148,163,184,.05) 1px,transparent 1px);
+  background-size:26px 26px;
+}
+button{font-family:inherit; cursor:pointer;}
+input,textarea,select{font-family:inherit;}
+:focus-visible{outline:2.5px solid var(--orbit); outline-offset:2px; border-radius:6px;}
+::selection{background:var(--orbit-bg);}
+
+/* ============ 데모 상단바 (프로토타입 셸 — 제품 UI 아님) ============ */
+.demobar{
+  position:fixed; top:0; left:0; right:0; z-index:80; height:54px;
+  background:linear-gradient(90deg,var(--demoink) 0%,#17224a 62%,#2b2a72 130%);
+  color:#DDE4F7; display:flex; align-items:center; gap:12px; padding:0 16px;
+  box-shadow:0 10px 26px -16px rgba(11,18,32,.75);
+}
+.db-logo{display:flex; align-items:baseline; gap:9px; flex:none;}
+.db-logo .mk{font-family:var(--mono); font-weight:800; font-size:15px; letter-spacing:.16em; color:#fff;}
+.db-logo .sub{font-size:11px; color:#9FACD8; font-weight:600;}
+.db-docs{font-family:var(--mono); font-size:10px; color:#7E8CBB; letter-spacing:.02em; flex:none;}
+.db-spacer{flex:1;}
+.db-chip{
+  display:inline-flex; align-items:center; gap:6px; font-size:11.5px; font-weight:700;
+  border:1px solid rgba(255,255,255,.16); background:rgba(255,255,255,.06);
+  color:#E7ECFB; border-radius:999px; padding:5px 11px; flex:none; white-space:nowrap;
+}
+.db-chip .dot{width:7px; height:7px; border-radius:50%; flex:none;}
+.db-chip.persp-d .dot{background:#6EA0FF;} .db-chip.persp-s .dot{background:#4FD1DB;}
+.db-chip.persp-o .dot{background:#A5AAF5;} .db-chip.persp-j .dot{background:#5FD98B;}
+.db-nsm{background:rgba(21,128,61,.28); border-color:rgba(95,217,139,.5); color:#CFF5DC;}
+.db-nsm b{font-family:var(--mono);}
+.db-nsm.tick{animation:nsmpulse .9s ease;}
+@keyframes nsmpulse{0%{transform:scale(1);}30%{transform:scale(1.14); box-shadow:0 0 0 8px rgba(95,217,139,.18);}100%{transform:scale(1);}}
+.db-btn{
+  border:1px solid rgba(255,255,255,.2); background:rgba(255,255,255,.08); color:#EDF1FE;
+  font-size:11.5px; font-weight:700; border-radius:9px; padding:6px 12px; flex:none;
+}
+.db-btn:hover{background:rgba(255,255,255,.16);}
+.db-btn.on{background:#fff; color:var(--demoink); border-color:#fff;}
+.db-state{display:flex; gap:5px; flex:none;}
+.db-state .st{
+  font-size:10.5px; font-weight:700; border-radius:999px; padding:4px 9px;
+  border:1px dashed rgba(255,215,130,.55); color:#FFE1A6; background:rgba(180,83,9,.16);
+}
+.db-state .st.on{background:#FFD98A; color:#5C3A00; border-style:solid;}
+
+/* 관점 전환 배너 (데모 전용) */
+.perspband{
+  position:fixed; top:54px; left:0; right:0; z-index:70; display:none;
+  justify-content:center; padding:7px 12px; pointer-events:none;
+}
+.perspband.show{display:flex; animation:banddrop .5s ease;}
+.perspband span{
+  pointer-events:auto; font-size:12px; font-weight:700; color:#4A3403;
+  background:#FFF3D6; border:1px dashed #E5C069; border-radius:999px; padding:6px 14px;
+  box-shadow:0 8px 18px -12px rgba(120,80,0,.5);
+}
+@keyframes banddrop{from{transform:translateY(-8px); opacity:0;}to{transform:none; opacity:1;}}
+
+/* ============ 무대 ============ */
+.stagewrap{padding:84px 18px 46px; display:flex; justify-content:center;}
+.browser{
+  width:100%; max-width:1200px; background:var(--card);
+  border:1.5px solid #CBD3DF; border-radius:16px; overflow:hidden;
+  box-shadow:0 26px 60px -34px rgba(15,23,42,.5);
+}
+.br-bar{display:flex; align-items:center; gap:10px; padding:10px 14px; background:#E7EBF1; border-bottom:1px solid #D5DBE4;}
+.br-dots{display:flex; gap:6px; flex:none;}
+.br-dots i{width:11px; height:11px; border-radius:50%;}
+.br-dots i:nth-child(1){background:#F87171;} .br-dots i:nth-child(2){background:#FBBF24;} .br-dots i:nth-child(3){background:#34D399;}
+.br-url{
+  flex:1; height:26px; border-radius:99px; background:#fff; border:1px solid #D5DBE4;
+  font-family:var(--mono); font-size:11px; color:var(--slate); display:flex; align-items:center; gap:7px; padding:0 13px; letter-spacing:.02em;
+}
+.br-url .lk{color:var(--green); font-size:10px;}
+.br-scrid{
+  font-family:var(--mono); font-size:10.5px; font-weight:800; color:#fff; border-radius:6px; padding:3px 9px; letter-spacing:.04em; flex:none;
+  background:var(--orbit);
+}
+.browser.lane-d{border-top:4px solid var(--demand);} .browser.lane-d .br-scrid{background:var(--demand);}
+.browser.lane-s{border-top:4px solid var(--supply);} .browser.lane-s .br-scrid{background:var(--supply);}
+.browser.lane-o{border-top:4px solid var(--orbit);}  .browser.lane-o .br-scrid{background:var(--orbit);}
+.browser.lane-j{border-top:4px solid var(--green);}  .browser.lane-j .br-scrid{background:var(--green);}
+.vp{background:#fff; min-height:560px; position:relative;}
+
+/* ============ 제품 공통 ============ */
+.scr{display:none;}
+.scr.on{display:block; animation:scrfade .3s ease;}
+@keyframes scrfade{from{opacity:0; transform:translateY(4px);}to{opacity:1; transform:none;}}
+.pagepad{padding:22px 30px 30px;}
+.dnav{
+  display:flex; align-items:center; justify-content:space-between; gap:14px;
+  padding:14px 30px; border-bottom:1px solid var(--line);
+}
+.dnav .plogo{font-family:var(--mono); font-size:14px; font-weight:800; letter-spacing:.15em; color:var(--navy); text-decoration:none; background:none; border:0; padding:0;}
+.dnav .pctx{font-size:12px; color:var(--slate2); font-weight:600;}
+.dnav .pright{display:flex; align-items:center; gap:10px;}
+.avatarc{
+  width:30px; height:30px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center;
+  font-size:12px; font-weight:800; color:#fff; flex:none; letter-spacing:0;
+}
+.av-d{background:linear-gradient(135deg,#2563EB,#4338CA);}
+.av-s{background:linear-gradient(135deg,#0E7C86,#15803D);}
+.av-x{background:linear-gradient(135deg,#64748B,#334155);}
+.avatarc.sm{width:24px; height:24px; font-size:10px;}
+
+.h-title{font-size:24px; font-weight:800; letter-spacing:-0.02em; margin:0 0 6px; color:var(--navy);}
+.h-sub{font-size:13.5px; color:var(--slate); margin:0;}
+.seclabel{font-size:11.5px; font-weight:800; color:var(--slate2); letter-spacing:.05em; margin:18px 0 8px;}
+.seclabel:first-child{margin-top:0;}
+
+/* 버튼 */
+.btn{
+  display:inline-flex; align-items:center; justify-content:center; gap:7px;
+  border-radius:10px; border:1px solid transparent; font-weight:800; font-size:13.5px;
+  padding:11px 20px; transition:transform .06s ease, box-shadow .15s ease, background .15s ease;
+}
+.btn:active{transform:translateY(1px);}
+.btn-d{background:var(--demand); color:#fff; box-shadow:0 10px 20px -12px rgba(37,99,235,.65);}
+.btn-d:hover{background:var(--demand-dark);}
+.btn-s{background:var(--supply); color:#fff; box-shadow:0 10px 20px -12px rgba(14,124,134,.6);}
+.btn-s:hover{background:var(--supply-dark);}
+.btn-j{background:var(--green); color:#fff; box-shadow:0 10px 20px -12px rgba(21,128,61,.6);}
+.btn-nv{background:var(--navy); color:#fff;}
+.btn-gh{background:#fff; color:var(--slate); border-color:var(--line);}
+.btn-gh:hover{border-color:var(--slate3); color:var(--navy2);}
+.btn-soft-d{background:var(--demand-bg); color:var(--demand); border-color:var(--demand-line);}
+.btn:disabled{background:var(--line2); color:var(--slate3); box-shadow:none; border:1px dashed var(--line); cursor:not-allowed;}
+.btn.sm{padding:7px 13px; font-size:12px; border-radius:8px;}
+.btn.xs{padding:5px 10px; font-size:11px; border-radius:7px;}
+.linkbtn{background:none; border:0; padding:0; font-size:12px; font-weight:700; color:var(--slate2); text-decoration:underline; text-underline-offset:3px;}
+.linkbtn:hover{color:var(--navy2);}
+
+/* 진행바 (수요자 여정 상단 고정 · 화면정의서 07 공통정책) */
+.prog{display:flex; align-items:center; gap:9px; margin:0 0 20px;}
+.prog .lbl{font-family:var(--mono); font-size:12px; color:var(--demand); font-weight:800; flex:none;}
+.prog .seg{height:7px; flex:1; border-radius:99px; background:var(--line2); position:relative; overflow:hidden;}
+.prog .seg.on::after{content:""; position:absolute; inset:0; background:var(--demand); border-radius:99px;}
+.prog .stepnm{font-size:11px; color:var(--slate2); font-weight:700; flex:none;}
+
+/* 카드·칩 */
+.card{border:1px solid var(--line); border-radius:12px; padding:14px 16px; background:#fff;}
+.card.ghosty{background:var(--post-bg); border-style:dashed; color:var(--slate2);}
+.chip{display:inline-flex; align-items:center; gap:4px; font-size:11px; font-weight:800; padding:3px 9px; border-radius:6px; letter-spacing:.01em;}
+.lv-hi{color:var(--green); background:var(--green-bg);}
+.lv-mid{color:var(--gate); background:var(--gate-bg);}
+.lv-lo{color:var(--red); background:var(--red-bg);}
+.chip.lockc{color:var(--lock); background:var(--lock-bg); font-family:var(--mono); position:relative;}
+.chip.lockc:hover .locktip{opacity:1; transform:translate(-50%,0);}
+.locktip{
+  position:absolute; bottom:calc(100% + 8px); left:50%; transform:translate(-50%,4px);
+  background:var(--navy); color:#fff; font-family:"Pretendard",sans-serif; font-weight:600;
+  font-size:11px; padding:7px 11px; border-radius:8px; white-space:nowrap; opacity:0; pointer-events:none;
+  transition:all .18s ease; box-shadow:var(--shadow); z-index:9;
+}
+.locktip::after{content:""; position:absolute; top:100%; left:50%; transform:translateX(-50%); border:5px solid transparent; border-top-color:var(--navy);}
+.chip.rolebadge{color:var(--demand); background:var(--demand-bg); font-family:var(--mono);}
+.chip.state-wait{color:var(--gate); background:var(--gate-bg);}
+.chip.state-ok{color:var(--green); background:var(--green-bg);}
+.chip.state-no{color:var(--red); background:var(--red-bg);}
+.chip.postc{color:var(--post); background:var(--post-bg);}
+.chip.newc{color:#8A5A00; background:#FEF3D8;}
+.chip.mvpc{color:var(--mvp); background:var(--mvp-bg); font-family:var(--mono);}
+
+/* 인라인 게이트 (타깃 경계 · 하드블록 아님) */
+.gatebar{
+  display:flex; align-items:center; gap:10px; border:1px solid var(--gate-line);
+  background:var(--gate-bg); color:var(--gate); border-radius:10px; padding:9px 14px;
+  font-size:12.5px; font-weight:600; margin-bottom:18px;
+}
+.gatebar .gx{margin-left:auto; flex:none;}
+.softnote{
+  display:flex; gap:8px; align-items:flex-start; font-size:12px; color:var(--gate);
+  background:var(--gate-bg); border:1px dashed var(--gate-line); border-radius:9px; padding:8px 12px; font-weight:600;
+}
+.shieldnote{
+  display:flex; gap:9px; align-items:flex-start; font-size:12.5px; color:var(--supply);
+  background:var(--supply-bg); border:1px solid var(--supply-line); border-radius:10px; padding:11px 14px; font-weight:600;
+}
+
+/* 입력 */
+.inp, textarea.inp{
+  width:100%; border:1.5px solid var(--line); border-radius:10px; padding:11px 13px;
+  font-size:13.5px; color:var(--navy); background:#fff; transition:border-color .15s ease;
+}
+.inp:focus{border-color:var(--demand); outline:none;}
+textarea.inp{resize:vertical; min-height:64px; line-height:1.6;}
+.inp::placeholder{color:var(--slate3);}
+.fieldlb{font-size:12px; font-weight:800; color:var(--slate); margin:0 0 6px; display:flex; align-items:center; gap:6px;}
+.fieldhint{font-size:11.5px; color:var(--slate2); margin-top:5px;}
+.counter{font-family:var(--mono); font-size:11px; color:var(--slate3);}
+
+/* 레이아웃 그리드 */
+.cols64{display:grid; grid-template-columns:1.55fr 1fr; gap:26px; align-items:start;}
+.cols55{display:grid; grid-template-columns:1fr 1fr; gap:22px; align-items:start;}
+.panelbox{border:1px solid var(--line); border-radius:14px; background:#FBFCFF; padding:16px;}
+
+/* 랜딩 */
+.hero{padding:54px 30px 30px; text-align:left; max-width:980px; margin:0 auto;}
+.hero .kick{font-family:var(--mono); font-size:11.5px; font-weight:800; letter-spacing:.2em; color:var(--orbit);}
+.hero h2{font-size:36px; line-height:1.28; font-weight:800; letter-spacing:-0.03em; margin:12px 0 12px; color:var(--navy);}
+.hero h2 .hl{color:var(--demand); position:relative;}
+.hero h2 .hl::after{content:""; position:absolute; left:0; right:0; bottom:3px; height:10px; background:var(--demand-bg); z-index:-1; border-radius:3px;}
+.hero p{font-size:15px; color:var(--slate); max-width:560px; margin:0 0 24px;}
+.stepstrip{display:grid; grid-template-columns:repeat(3,1fr); gap:14px; max-width:980px; margin:34px auto 0; padding:0 30px;}
+.stepcard{border:1px solid var(--line); border-radius:14px; background:#fff; padding:16px 18px; position:relative;}
+.stepcard .no{font-family:var(--mono); font-size:11px; font-weight:800; color:#fff; background:var(--navy); border-radius:6px; padding:2px 8px;}
+.stepcard h4{margin:9px 0 4px; font-size:15px; font-weight:800;}
+.stepcard p{margin:0; font-size:12.5px; color:var(--slate);}
+.stepcard.s1 .no{background:var(--demand);} .stepcard.s2 .no{background:var(--orbit);} .stepcard.s3 .no{background:var(--green);}
+.landfoot{border-top:1px solid var(--line); margin-top:44px; padding:16px 30px; display:flex; justify-content:space-between; align-items:center; font-size:11.5px; color:var(--slate2);}
+.landfoot .lks{display:flex; gap:14px;}
+.landfoot button{background:none; border:0; padding:0; color:var(--slate2); font-size:11.5px; text-decoration:underline; text-underline-offset:3px;}
+
+/* 가입 · 모달 */
+.authwrap{min-height:520px; display:flex; align-items:center; justify-content:center; padding:40px 20px; background:repeating-linear-gradient(0deg,var(--sky) 0 10px,#fff 10px 24px);}
+.authcard{width:360px; background:#fff; border:1.5px solid var(--line); border-radius:16px; padding:24px; box-shadow:var(--shadow);}
+.authcard h3{margin:0 0 4px; font-size:19px; font-weight:800; text-align:center;}
+.authcard .ah{font-size:12px; color:var(--slate2); text-align:center; margin:0 0 18px;}
+.sso{width:100%; margin-bottom:9px;}
+.agreebox{border:1px solid var(--line); border-radius:10px; padding:10px 12px; display:flex; gap:9px; align-items:flex-start; margin-bottom:9px; background:#FBFCFF;}
+.agreebox input{margin-top:2px; width:15px; height:15px; accent-color:var(--navy); flex:none;}
+.agreebox label{font-size:12.5px; color:var(--navy2); font-weight:600; line-height:1.5;}
+.agreebox small{display:block; color:var(--slate2); font-weight:500; font-size:11px; margin-top:2px;}
+.modalveil{
+  position:fixed; inset:0; z-index:90; background:rgba(15,23,42,.45); backdrop-filter:blur(2px);
+  display:none; align-items:center; justify-content:center; padding:20px;
+}
+.modalveil.show{display:flex; animation:scrfade .2s ease;}
+.modalcard{width:400px; max-width:96vw; background:#fff; border-radius:16px; border:1.5px solid var(--line); padding:22px; box-shadow:0 30px 70px -30px rgba(15,23,42,.6); max-height:86vh; overflow:auto;}
+.modalcard h3{margin:0 0 4px; font-size:17px; font-weight:800;}
+.modalcard .mh{font-size:12px; color:var(--slate2); margin:0 0 14px;}
+
+/* 진입 분기 */
+.branch{display:grid; grid-template-columns:1fr 1fr; gap:18px; max-width:760px; margin:0 auto;}
+.branchcard{
+  text-align:left; border-radius:16px; padding:24px 22px; border:1.5px solid var(--line); background:#fff;
+  transition:transform .12s ease, box-shadow .15s ease, border-color .15s ease;
+}
+.branchcard:hover{transform:translateY(-3px); box-shadow:var(--shadow);}
+.branchcard.bd{border-color:var(--demand-line); background:linear-gradient(180deg,var(--demand-bg),#fff 70%);}
+.branchcard.bs{border-color:var(--supply-line); background:linear-gradient(180deg,var(--supply-bg),#fff 70%);}
+.branchcard .bt{font-size:17px; font-weight:800; margin:10px 0 5px;}
+.branchcard.bd .bt{color:var(--demand-dark);} .branchcard.bs .bt{color:var(--supply-dark);}
+.branchcard p{margin:0; font-size:12.5px; color:var(--slate);}
+.branchcard .go{margin-top:14px; font-size:12px; font-weight:800;}
+.branchcard.bd .go{color:var(--demand);} .branchcard.bs .go{color:var(--supply);}
+.branchcard .bicon{font-size:22px;}
+
+/* 로딩 (ORBIT 중…) */
+.loadwrap{min-height:520px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px; text-align:center; padding:30px;}
+.orbitspin{width:74px; height:74px; border-radius:50%; border:4px solid var(--orbit-bg); border-top-color:var(--orbit); animation:spin 1s linear infinite; position:relative;}
+.orbitspin::after{content:""; position:absolute; width:10px; height:10px; border-radius:50%; background:var(--orbit); top:-7px; left:50%; transform:translateX(-50%);}
+@keyframes spin{to{transform:rotate(360deg);}}
+.loadwrap .brandword{font-family:var(--mono); font-size:14px; font-weight:800; color:var(--orbit); letter-spacing:.08em;}
+.loadwrap .lmsg{font-size:13px; color:var(--slate);}
+.loadwrap .lbar{width:280px; height:7px; border-radius:99px; background:var(--line2); overflow:hidden;}
+.loadwrap .lbar i{display:block; height:100%; width:0%; background:linear-gradient(90deg,var(--orbit),var(--demand)); border-radius:99px; transition:width .3s ease;}
+.errcard{border:1.5px solid var(--red); background:var(--red-bg); border-radius:14px; padding:18px 20px; max-width:420px;}
+.errcard h4{margin:0 0 5px; color:var(--red); font-size:15px;}
+.errcard p{margin:0 0 12px; font-size:12.5px; color:#7F1D1D;}
+
+/* 프로젝트 페이지 (W-06) */
+.projname{font-size:22px; font-weight:800; letter-spacing:-0.02em; margin:0;}
+.projtag{font-size:13px; color:var(--slate); margin:4px 0 0;}
+.mockrow{display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin:14px 0 10px;}
+.mockthumb{border:1px dashed var(--slate3); border-radius:10px; background:var(--sky); height:120px; position:relative; overflow:hidden; padding:10px;}
+.mockthumb .ex{position:absolute; top:8px; left:8px; font-family:var(--mono); font-size:9px; font-weight:800; color:var(--slate); background:#fff; border:1px solid var(--line); border-radius:4px; padding:2px 6px; z-index:2;}
+.mk-line{height:8px; border-radius:5px; background:#DCE4F0; margin:6px 0;}
+.mk-box{border-radius:7px; background:#D3DEF2;}
+.mk-pin{width:12px; height:12px; border-radius:50% 50% 50% 0; background:var(--demand); transform:rotate(-45deg); position:absolute;}
+.toggleseg{display:inline-flex; border:1px solid var(--line); border-radius:9px; overflow:hidden; margin-bottom:14px;}
+.toggleseg button{border:0; background:#fff; font-size:12px; font-weight:700; color:var(--slate2); padding:7px 14px;}
+.toggleseg button.on{background:var(--navy); color:#fff;}
+.featrow{display:flex; flex-direction:column; gap:8px;}
+.featitem{display:flex; align-items:center; gap:10px; border:1px solid var(--line); border-radius:10px; padding:9px 12px; font-size:12.5px; font-weight:600; color:var(--navy2); background:#fff;}
+.featitem .fic{flex:none; width:26px; height:26px; border-radius:8px; background:var(--demand-bg); display:flex; align-items:center; justify-content:center; font-size:13px;}
+.featitem .frole{margin-left:auto; flex:none;}
+.plandoc{border:1px solid var(--line); border-radius:12px; background:#FBFCFF; padding:14px 16px;}
+.plandoc dl{margin:0; display:grid; grid-template-columns:86px 1fr; gap:7px 12px; font-size:12.5px;}
+.plandoc dt{font-weight:800; color:var(--slate);}
+.plandoc dd{margin:0; color:var(--navy2);}
+.rolegrid{display:grid; grid-template-columns:repeat(4,1fr); gap:9px;}
+.rolecard{border:1px solid var(--line); border-radius:11px; padding:11px 12px; background:#fff;}
+.rolecard .rn{font-size:12.5px; font-weight:800;}
+.rolecard .rs{font-size:11px; font-weight:700; margin-top:3px;}
+.rolecard.active{border-color:var(--demand); box-shadow:0 6px 16px -12px rgba(37,99,235,.6);}
+.rolecard.active .rn{color:var(--demand);} .rolecard.active .rs{color:var(--demand);}
+.rolecard.prep{background:var(--post-bg); border-style:dashed;}
+.rolecard.prep .rn{color:var(--slate2);} .rolecard.prep .rs{color:var(--slate3);}
+.regenrow{margin-top:16px; display:flex; align-items:center; gap:10px;}
+
+/* 후보 카드 */
+.candcard{border:1.5px solid var(--line); border-radius:13px; padding:14px; background:#fff; margin-bottom:10px; transition:border-color .15s ease, box-shadow .15s ease;}
+.candcard:hover{border-color:var(--demand-line);}
+.candcard.sel{border-color:var(--demand); box-shadow:0 10px 24px -16px rgba(37,99,235,.55);}
+.candhead{display:flex; align-items:center; gap:10px;}
+.candhead .nm{font-size:14px; font-weight:800;}
+.candhead .rl{font-size:11.5px; color:var(--slate2); font-weight:600;}
+.candhead .right{margin-left:auto;}
+.axisrow{display:flex; gap:5px; flex-wrap:wrap; margin-top:10px;}
+.whybox{margin-top:10px; border-left:3px solid var(--demand-line); background:var(--demand-bg); border-radius:0 9px 9px 0; padding:8px 11px; font-size:12px; color:var(--navy2); line-height:1.6;}
+.whybox b{color:var(--demand-dark);}
+.emptystate{border:1.5px dashed var(--slate3); border-radius:13px; background:var(--sky); padding:26px 18px; text-align:center;}
+.emptystate .ei{font-size:26px;}
+.emptystate h4{margin:8px 0 4px; font-size:14px;}
+.emptystate p{margin:0 0 12px; font-size:12px; color:var(--slate);}
+
+/* Q카드 (W-08 / W-11) */
+.qcard{border:1px solid var(--line); border-radius:12px; padding:13px 15px; background:#fff; margin-bottom:10px;}
+.qcard .qno{font-family:var(--mono); font-size:10.5px; font-weight:800; color:var(--orbit); background:var(--orbit-bg); border-radius:5px; padding:2px 7px; display:inline-block;}
+.qcard .qtx{font-size:13.5px; font-weight:700; color:var(--navy2); margin:7px 0 0; line-height:1.55;}
+.qcard.autoq{background:#FBFCFF;}
+.qcard .auto-tag{font-size:10px; color:var(--slate2); font-weight:700; float:right;}
+.q3fold{border:1.5px dashed var(--slate3); border-radius:12px; background:#fff;}
+.q3fold > button{width:100%; text-align:left; background:none; border:0; padding:13px 15px; font-size:13px; font-weight:800; color:var(--slate2);}
+.q3body{padding:0 15px 14px; display:none;}
+.q3fold.open .q3body{display:block;}
+.q3fold.open > button{color:var(--navy2);}
+
+/* 등록 위저드 (W-09) */
+.wiz{display:grid; grid-template-columns:190px 1fr; gap:24px; align-items:start;}
+.wizsteps{display:flex; flex-direction:column; gap:8px; position:sticky; top:10px;}
+.wst{display:flex; align-items:center; gap:9px; border:1px solid var(--line); border-radius:10px; background:#fff; padding:10px 12px; font-size:12.5px; font-weight:800; color:var(--slate2);}
+.wst .wn{font-family:var(--mono); font-size:10.5px; width:20px; height:20px; border-radius:50%; background:var(--line2); color:var(--slate2); display:inline-flex; align-items:center; justify-content:center; flex:none;}
+.wst.on{border-color:var(--supply-line); background:var(--supply-bg); color:var(--supply-dark);}
+.wst.on .wn{background:var(--supply); color:#fff;}
+.wst.done{color:var(--supply);}
+.wst.done .wn{background:var(--green-bg); color:var(--green);}
+.radioopt{display:flex; gap:10px; align-items:flex-start; border:1.5px solid var(--line); border-radius:11px; padding:12px 14px; background:#fff; margin-bottom:9px; cursor:pointer; transition:border-color .15s;}
+.radioopt input{margin-top:3px; accent-color:var(--supply); width:15px; height:15px; flex:none;}
+.radioopt .rt{font-size:13.5px; font-weight:800; color:var(--navy2);}
+.radioopt .rd{font-size:12px; color:var(--slate); margin-top:2px;}
+.radioopt.checked{border-color:var(--supply);}
+.verifybadge{display:inline-flex; align-items:center; gap:6px; font-size:11.5px; font-weight:800; color:var(--gate); background:var(--gate-bg); border:1px solid var(--gate-line); border-radius:999px; padding:4px 11px;}
+
+/* 수신함 (W-10) */
+.inboxrow{display:grid; grid-template-columns:1fr 1.2fr; gap:20px; align-items:start;}
+.invitem{width:100%; text-align:left; border:1.5px solid var(--line); border-radius:12px; background:#fff; padding:13px 14px; margin-bottom:9px; display:flex; align-items:center; gap:10px;}
+.invitem:hover{border-color:var(--supply-line);}
+.invitem.sel{border-color:var(--supply); box-shadow:0 8px 20px -14px rgba(14,124,134,.55);}
+.invitem .it{font-size:13px; font-weight:800;}
+.invitem .is{font-size:11px; color:var(--slate2); font-weight:600;}
+.posttab{border:1.5px dashed var(--slate3); border-radius:12px; background:var(--post-bg); padding:13px 14px; color:var(--slate2); font-size:12.5px; font-weight:800; display:flex; align-items:center; gap:8px;}
+
+/* 궁합 결과 (W-12) — 유일한 최종 점수 공개 지점 */
+.matchwrap{max-width:760px; margin:0 auto; text-align:center;}
+.matchkick{font-family:var(--mono); font-size:12px; font-weight:800; color:var(--green); letter-spacing:.14em;}
+.lockflip{font-size:30px; display:inline-block; margin:8px 0 2px; transition:transform .5s ease;}
+.lockflip.open{animation:lockopen .8s ease;}
+@keyframes lockopen{0%{transform:scale(1);}35%{transform:scale(1.3) rotate(-8deg);}70%{transform:scale(1.05) rotate(4deg);}100%{transform:scale(1);}}
+.scorerow{display:flex; justify-content:center; gap:26px; margin:18px 0 8px;}
+.scoreblock{width:150px;}
+.gauge{
+  --p:0; width:118px; height:118px; border-radius:50%; margin:0 auto; position:relative;
+  background:conic-gradient(var(--gc,var(--green)) calc(var(--p)*1%), var(--line2) 0);
+}
+.gauge::after{content:""; position:absolute; inset:11px; border-radius:50%; background:#fff;}
+.gauge .gv{position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; z-index:2;}
+.gauge .gn{font-family:var(--mono); font-size:26px; font-weight:800; color:var(--navy);}
+.gauge .gn small{font-size:13px; color:var(--slate2);}
+.scoreblock .gl{font-size:12.5px; font-weight:800; color:var(--slate); margin-top:9px;}
+.scoreblock .gs{font-size:11px; color:var(--slate2); margin-top:1px;}
+.revealchip{display:inline-flex; align-items:center; gap:7px; font-size:12px; font-weight:800; color:var(--green); background:var(--green-bg); border:1px solid var(--green-line); border-radius:999px; padding:6px 14px; margin:6px 0 18px;}
+.whyfinal{text-align:left; border:1px solid var(--green-line); border-left:4px solid var(--green); background:#fff; border-radius:12px; padding:14px 17px; margin:0 auto 18px; max-width:620px;}
+.whyfinal h4{margin:0 0 7px; font-size:13px; color:var(--green);}
+.whyfinal p{margin:0; font-size:13px; color:var(--navy2); line-height:1.7;}
+.profilepair{display:grid; grid-template-columns:1fr 1fr; gap:14px; max-width:620px; margin:0 auto 20px; text-align:left;}
+.profcard{border:1px solid var(--line); border-radius:12px; background:#FBFCFF; padding:13px 15px;}
+.profcard .ph{display:flex; align-items:center; gap:9px; margin-bottom:8px;}
+.profcard .pn{font-size:13px; font-weight:800;}
+.profcard .pr{font-size:11px; color:var(--slate2); font-weight:600;}
+.profcard ul{margin:0; padding-left:16px; font-size:12px; color:var(--slate); line-height:1.7;}
+.profnote{font-size:11px; color:var(--slate2); margin:-8px auto 18px; max-width:620px; text-align:left;}
+
+/* 합류 합의 (W-13) */
+.agreegrid{display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:16px;}
+.agreefield{border:1px solid var(--line); border-radius:12px; padding:12px 14px; background:#fff;}
+.agreefield .af{font-size:11px; font-weight:800; color:var(--slate2); letter-spacing:.04em; margin-bottom:7px;}
+.signrow{display:grid; grid-template-columns:1fr 1fr; gap:12px; max-width:520px;}
+.signbtn{position:relative;}
+.signbtn .done{display:none;}
+.signbtn.signed{background:var(--green-bg); color:var(--green); border:1.5px solid var(--green-line); box-shadow:none; cursor:default;}
+.signbtn.signed .done{display:inline;} .signbtn.signed .todo{display:none;}
+.waitnote{font-size:11.5px; color:var(--slate2); margin-top:8px;}
+.nsmband{
+  display:none; margin:20px auto 0; max-width:640px; text-align:center; color:#fff;
+  background:linear-gradient(135deg,var(--green) 0%,#0E7C86 120%); border-radius:15px; padding:17px 20px;
+  box-shadow:0 18px 40px -20px rgba(21,128,61,.65);
+}
+.nsmband.show{display:block; animation:scrfade .5s ease;}
+.nsmband .st{font-family:var(--mono); font-size:11px; letter-spacing:.18em; font-weight:800; opacity:.92;}
+.nsmband .bg{font-size:19px; font-weight:800; margin:5px 0 3px;}
+.nsmband .sb{font-size:12px; opacity:.94;}
+
+/* 핸드오프 (W-14) */
+.handwrap{max-width:600px; margin:0 auto; text-align:center; padding-top:14px;}
+.slackbtn{font-size:14px;}
+.boundary{border:1px solid var(--line); border-left:4px solid var(--navy); border-radius:12px; background:#FBFCFF; padding:14px 17px; text-align:left; margin:22px 0 16px;}
+.boundary h4{margin:0 0 6px; font-size:12.5px; color:var(--slate); letter-spacing:.04em;}
+.boundary p{margin:0; font-size:13px; color:var(--navy2); line-height:1.7;}
+
+/* 대시보드 셸 (W-15) */
+.shell{display:grid; grid-template-columns:210px 1fr; min-height:560px;}
+.shellside{border-right:1px solid var(--line); background:#FBFCFE; padding:18px 12px; display:flex; flex-direction:column; gap:4px;}
+.snav{display:flex; align-items:center; gap:9px; width:100%; text-align:left; border:0; background:none; border-radius:9px; padding:10px 12px; font-size:13px; font-weight:700; color:var(--slate);}
+.snav:hover{background:var(--line2);}
+.snav.on{background:var(--navy); color:#fff;}
+.snav .ic{width:18px; text-align:center; flex:none;}
+.snav.disabled{color:var(--slate3); cursor:not-allowed;}
+.snav .postpill{margin-left:auto; font-size:9px; font-weight:800; color:var(--post); background:var(--post-bg); border-radius:5px; padding:1px 5px;}
+.shellmain{padding:22px 26px;}
+.sumgrid{display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:20px;}
+.sumcard{border:1px solid var(--line); border-radius:13px; background:#fff; padding:14px 16px;}
+.sumcard .sn{font-family:var(--mono); font-size:24px; font-weight:800;}
+.sumcard .sl{font-size:12px; font-weight:800; color:var(--slate2); margin-top:2px;}
+.listrow{display:flex; align-items:center; gap:11px; border:1px solid var(--line); border-radius:11px; background:#fff; padding:12px 14px; margin-bottom:8px;}
+.listrow .lt{font-size:13px; font-weight:800;}
+.listrow .ls{font-size:11px; color:var(--slate2); font-weight:600;}
+.listrow .lr{margin-left:auto; display:flex; align-items:center; gap:7px;}
+.tabrow{display:flex; gap:8px; margin-bottom:16px;}
+.tabbtn{border:1px solid var(--line); background:#fff; border-radius:999px; padding:7px 15px; font-size:12.5px; font-weight:800; color:var(--slate2);}
+.tabbtn.on-d{background:var(--demand); border-color:var(--demand); color:#fff;}
+.tabbtn.on-s{background:var(--supply); border-color:var(--supply); color:#fff;}
+
+/* 알림 */
+.notirow{display:flex; gap:11px; align-items:flex-start; border:1px solid var(--line); border-radius:11px; background:#fff; padding:12px 14px; margin-bottom:8px;}
+.notirow .ni{flex:none; width:30px; height:30px; border-radius:9px; display:flex; align-items:center; justify-content:center; font-size:14px; background:var(--sky);}
+.notirow .nt{font-size:12.5px; font-weight:700; color:var(--navy2);}
+.notirow .nd{font-size:11px; color:var(--slate2); margin-top:1px;}
+.mailtag{font-size:9.5px; font-weight:800; color:var(--orbit); background:var(--orbit-bg); border-radius:5px; padding:1px 6px; margin-left:6px;}
+
+/* 스펙·계측 드로어 (데모 전용) */
+.drawer{
+  position:fixed; top:54px; right:0; bottom:0; width:390px; max-width:92vw; z-index:75;
+  background:#0E1630; color:#D9E0F5; transform:translateX(102%); transition:transform .28s ease;
+  display:flex; flex-direction:column; box-shadow:-20px 0 50px -30px rgba(0,0,0,.7);
+}
+.drawer.open{transform:none;}
+.dw-head{padding:16px 18px 12px; border-bottom:1px solid rgba(255,255,255,.09);}
+.dw-head .t{font-size:13px; font-weight:800; color:#fff; letter-spacing:.03em;}
+.dw-head .s{font-size:10.5px; color:#8FA0CF; font-family:var(--mono); margin-top:2px;}
+.dw-body{flex:1; overflow:auto; padding:15px 18px 24px;}
+.dw-sec{margin-bottom:18px;}
+.dw-sec h5{margin:0 0 8px; font-family:var(--mono); font-size:10px; letter-spacing:.16em; color:#7E90C4; font-weight:800;}
+.dw-card{background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.09); border-radius:11px; padding:12px 13px; font-size:12px; line-height:1.65;}
+.dw-card b{color:#fff;}
+.dw-card .mono{font-family:var(--mono); font-size:10.5px; color:#9FB0DF;}
+.dw-chiprow{display:flex; flex-wrap:wrap; gap:5px; margin-top:8px;}
+.dw-chip{font-family:var(--mono); font-size:9.5px; font-weight:800; border-radius:5px; padding:2px 7px;}
+.dwc-mvp{background:rgba(124,58,237,.25); color:#D9C6FF;}
+.dwc-h{background:rgba(185,28,28,.25); color:#FFC0C0;}
+.dwc-new{background:rgba(202,138,4,.25); color:#FFE2A1;}
+.dwc-nsm{background:rgba(21,128,61,.4); color:#C9F3D6;}
+.dw-note{display:flex; gap:8px; margin-bottom:9px; font-size:11.5px; color:#C4CEEA; line-height:1.6;}
+.dw-note .n{flex:none; width:17px; height:17px; border-radius:50%; background:#fff; color:#0E1630; font-family:var(--mono); font-size:9.5px; font-weight:800; display:flex; align-items:center; justify-content:center; margin-top:2px;}
+.dw-note b{color:#fff;}
+.dw-note .why{color:#A5B4FF; font-weight:800;}
+.dw-ref{font-family:var(--mono); font-size:9.5px; color:#6D7FB4; display:block; margin-top:2px;}
+.evt{display:flex; align-items:baseline; gap:8px; padding:7px 0; border-bottom:1px dashed rgba(255,255,255,.08); font-family:var(--mono); font-size:10.5px;}
+.evt .en{color:#B7E3FF; font-weight:700; word-break:break-all;}
+.evt .eh{color:#FFB4B4; flex:none;}
+.evt .et{margin-left:auto; color:#66779F; flex:none; font-size:9.5px;}
+.evt .estar{color:#7CE8A2; flex:none;}
+.dw-empty{font-size:11px; color:#66779F; font-family:var(--mono); padding:6px 0;}
+
+/* 화면 지도 드로어 (좌) */
+.mapdrawer{
+  position:fixed; top:54px; left:0; bottom:0; width:330px; max-width:88vw; z-index:75;
+  background:#fff; border-right:1px solid var(--line); transform:translateX(-102%); transition:transform .28s ease;
+  display:flex; flex-direction:column; box-shadow:20px 0 50px -34px rgba(15,23,42,.4);
+}
+.mapdrawer.open{transform:none;}
+.md-head{padding:16px 18px 10px; border-bottom:1px solid var(--line);}
+.md-head .t{font-size:13px; font-weight:800;}
+.md-head .s{font-size:10.5px; color:var(--slate2); font-family:var(--mono); margin-top:2px;}
+.md-body{flex:1; overflow:auto; padding:12px 14px 24px;}
+.md-phase{font-family:var(--mono); font-size:10px; font-weight:800; letter-spacing:.1em; color:var(--slate2); margin:14px 0 6px;}
+.md-phase:first-child{margin-top:2px;}
+.md-item{display:flex; align-items:center; gap:9px; width:100%; text-align:left; background:none; border:0; border-radius:9px; padding:8px 10px; font-size:12.5px; font-weight:700; color:var(--navy2);}
+.md-item:hover{background:var(--sky);}
+.md-item.cur{background:var(--navy); color:#fff;}
+.md-item .mid{font-family:var(--mono); font-size:9.5px; font-weight:800; border-radius:5px; padding:2px 6px; flex:none; color:#fff; min-width:44px; text-align:center;}
+.md-item .mid.ld{background:var(--demand);} .md-item .mid.ls{background:var(--supply);}
+.md-item .mid.lo{background:var(--orbit);} .md-item .mid.lj{background:var(--green);}
+.md-item .vis{margin-left:auto; width:7px; height:7px; border-radius:50%; background:var(--line); flex:none;}
+.md-item .vis.seen{background:var(--green);}
+
+/* 토스트 */
+.toast{
+  position:fixed; left:50%; bottom:26px; transform:translate(-50%,20px); z-index:95;
+  background:var(--navy); color:#fff; font-size:12.5px; font-weight:700; border-radius:11px;
+  padding:11px 18px; opacity:0; pointer-events:none; transition:all .25s ease; box-shadow:var(--shadow); max-width:90vw; text-align:center;
+}
+.toast.show{opacity:1; transform:translate(-50%,0);}
+
+/* 데모 표기 · 풋라인 */
+.demotagline{text-align:center; font-family:var(--mono); font-size:10.5px; color:var(--slate2); padding:0 16px 26px; letter-spacing:.02em; line-height:1.8;}
+.rejbanner{display:none; align-items:flex-start; gap:9px; border:1.5px solid var(--red); background:var(--red-bg); border-radius:11px; padding:11px 14px; font-size:12.5px; color:#7F1D1D; font-weight:700; margin-bottom:16px;}
+.rejbanner.show{display:flex;}
+
+@media (max-width:1000px){
+  .cols64,.cols55,.inboxrow,.branch,.profilepair{grid-template-columns:1fr;}
+  .rolegrid{grid-template-columns:repeat(2,1fr);}
+  .agreegrid,.sumgrid,.stepstrip{grid-template-columns:1fr;}
+  .wiz{grid-template-columns:1fr;}
+  .wizsteps{position:static; flex-direction:row; flex-wrap:wrap;}
+  .shell{grid-template-columns:1fr;}
+  .shellside{flex-direction:row; flex-wrap:wrap; border-right:0; border-bottom:1px solid var(--line);}
+  .db-docs,.db-state{display:none;}
+  .scorerow{flex-wrap:wrap;}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.001s !important; transition-duration:.001s !important;}
+}
+</style>
+</head>
+<body>
+
+<!-- ==================== 데모 셸 (프로토타입 컨트롤) ==================== -->
+<header class="demobar">
+  <div class="db-logo"><span class="mk">ORBIT</span><span class="sub">프로토타입 · 데스크탑 v2.0</span></div>
+  <span class="db-docs">PRD v2.1.1 · IA v2.1.1 · UserFlow v1.1 · Wireframe v1.1 · 화면정의서 v1.0 정합</span>
+  <div class="db-spacer"></div>
+  <div class="db-state" id="stateChips"></div>
+  <span class="db-chip persp-o" id="perspChip"><i class="dot"></i><span id="perspTxt">공통</span></span>
+  <span class="db-chip db-nsm" id="nsmChip">★ NSM <b id="nsmNum">0</b></span>
+  <button class="db-btn" id="btnMap">화면 지도</button>
+  <button class="db-btn" id="btnSpec">스펙 · 계측</button>
+  <button class="db-btn" id="btnReset">처음부터</button>
+</header>
+<div class="perspband" id="perspBand"><span id="perspBandTxt"></span></div>
+
+<!-- 화면 지도 드로어 -->
+<aside class="mapdrawer" id="mapDrawer" aria-label="화면 지도">
+  <div class="md-head">
+    <div class="t">화면 지도 — 화면정의서 01_화면목록</div>
+    <div class="s">MVP 21화면 + 모달 2종 · 클릭하면 해당 화면으로 이동(선행 상태 자동 시드)</div>
+  </div>
+  <div class="md-body" id="mapBody"></div>
+</aside>
+
+<!-- 스펙·계측 드로어 -->
+<aside class="drawer" id="specDrawer" aria-label="스펙 및 계측 로그">
+  <div class="dw-head">
+    <div class="t">스펙 · 계측 패널</div>
+    <div class="s">화면정의서 02~06 상세 + 09_계측정의 라이브 로그</div>
+  </div>
+  <div class="dw-body">
+    <div class="dw-sec">
+      <h5>현재 화면</h5>
+      <div class="dw-card" id="specCard"></div>
+    </div>
+    <div class="dw-sec">
+      <h5>이 화면의 정의 근거 (화면정의서 발췌)</h5>
+      <div id="specNotes"></div>
+    </div>
+    <div class="dw-sec">
+      <h5>계측 이벤트 로그 — 09_계측정의 ↔ 가설 매핑</h5>
+      <div id="evtLog"><div class="dw-empty">아직 발생한 이벤트가 없어요. 화면을 조작하면 이벤트명·가설 태그가 여기 쌓입니다.</div></div>
+    </div>
+  </div>
+</aside>
+
+<!-- ==================== 무대: 브라우저 크롬 ==================== -->
+<main class="stagewrap">
+  <div class="browser lane-o" id="browserFrame">
+    <div class="br-bar">
+      <div class="br-dots"><i></i><i></i><i></i></div>
+      <div class="br-url"><span class="lk">🔒</span><span id="urlTxt">orbit.app</span></div>
+      <span class="br-scrid" id="scrIdTag">W-01</span>
+    </div>
+    <div class="vp">
+
+      <!-- ============ W-01 서비스 소개 (Landing) ============ -->
+      <section class="scr on" id="sec-W01">
+        <div class="dnav">
+          <button class="plogo" onclick="go('W01')">ORBIT</button>
+          <div class="pright">
+            <button class="btn btn-gh sm" onclick="openModal('M01')">로그인</button>
+          </div>
+        </div>
+        <div class="hero">
+          <div class="kick">AI 팀 빌딩 플랫폼</div>
+          <h2>아이디어를 <span class="hl">'필요한 역할'</span>로 ORBIT 하고,<br>함께 만들 팀원을 잇습니다</h2>
+          <p>풀고 싶은 문제는 뚜렷한데 무엇을 어떻게 만들지 막막했다면 — 한 줄이면 충분해요. 지분과 성과를 나눌 팀원과, 합류 합의까지 ORBIT이 함께합니다.</p>
+          <button class="btn btn-nv" onclick="ev('landing_cta_click'); go('W02')">ORBIT 시작</button>
+        </div>
+        <div class="stepstrip">
+          <div class="stepcard s1"><span class="no">①</span><h4>시작</h4><p>한 줄 아이디어를 적으면, 필요한 역할과 작업 요구로 정리해 드려요.</p></div>
+          <div class="stepcard s2"><span class="no">②</span><h4>확정</h4><p>검증된 팀원 후보를 근거와 함께 보고, 함께할 한 명을 고릅니다.</p></div>
+          <div class="stepcard s3"><span class="no">③</span><h4>초대</h4><p>질문 3개로 서로를 확인하고, 합류 합의로 팀의 첫 발을 뗍니다.</p></div>
+        </div>
+        <div class="landfoot">
+          <span>ORBIT — 팀 구성(합류 합의)까지 함께합니다</span>
+          <div class="lks">
+            <button onclick="toast('이용약관 (정적 페이지 · 프로토타입에선 링크만)')">이용약관</button>
+            <button onclick="toast('개인정보처리방침 (정적 페이지 · 프로토타입에선 링크만)')">개인정보처리방침</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ W-02 회원가입 → 약관·개인정보 동의 ============ -->
+      <section class="scr" id="sec-W02">
+        <div class="authwrap">
+          <div class="authcard">
+            <h3>ORBIT 시작하기</h3>
+            <p class="ah">가입은 1분이면 끝나요</p>
+            <button class="btn btn-nv sso" onclick="toast('소셜 로그인 (프로토타입에선 바로 진행돼요)')">소셜 계정으로 계속 <span style="font-weight:600; font-size:11px; opacity:.8">권장</span></button>
+            <button class="btn btn-gh sso" id="emailToggle">이메일로 계속</button>
+            <div id="emailFields" style="display:none; margin-bottom:9px;">
+              <input class="inp" style="margin-bottom:7px" type="email" placeholder="이메일 주소" aria-label="이메일 주소">
+              <input class="inp" type="password" placeholder="비밀번호" aria-label="비밀번호">
+            </div>
+            <div class="seclabel" style="margin-top:14px">약관 · 개인정보 동의</div>
+            <div class="agreebox">
+              <input type="checkbox" id="tosChk" aria-label="이용약관 동의">
+              <label for="tosChk">이용약관 및 개인정보 수집·이용에 동의합니다 <small>일반 약관 — 팀원 등록 시의 아이디어 보호 동의(별도)와 구분돼요</small></label>
+            </div>
+            <button class="btn btn-nv" style="width:100%" id="signupBtn" disabled onclick="ev('signup_complete'); go('W03')">동의하고 가입</button>
+            <p style="text-align:center; margin:12px 0 0; font-size:11px; color:var(--slate3);">아이디·비밀번호 찾기는 준비 중이에요 (소셜 로그인 우선)</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ W-03 서비스 진입 분기 + 온보딩 ============ -->
+      <section class="scr" id="sec-W03">
+        <div class="dnav">
+          <button class="plogo" onclick="go('W01')">ORBIT</button>
+          <div class="pright"><span class="avatarc av-x sm">나</span></div>
+        </div>
+        <div class="pagepad" style="max-width:860px; margin:0 auto;">
+          <div style="text-align:center; margin:18px 0 26px;">
+            <h1 class="h-title">오늘은 어느 쪽으로 시작할까요?</h1>
+            <p class="h-sub">선택에 따라 여정이 나뉘어요 — 언제든 반대쪽으로도 시작할 수 있어요.</p>
+          </div>
+          <div class="branch">
+            <button class="branchcard bd" onclick="chooseSide('demand')">
+              <span class="bicon">💡</span>
+              <div class="bt">아이디어로 팀 만들기</div>
+              <p>풀고 싶은 문제가 있어요. 무엇을 어떻게 만들지부터, 함께할 팀원까지 찾고 싶어요.</p>
+              <div class="go">수요 진입 →</div>
+            </button>
+            <button class="branchcard bs" onclick="chooseSide('supply')">
+              <span class="bicon">🛠️</span>
+              <div class="bt">팀원으로 합류하기</div>
+              <p>검증된 실력이 있어요. 베팅할 만한 아이디어에 지분·성과를 걸고 합류하고 싶어요.</p>
+              <div class="go">공급 진입 →</div>
+            </button>
+          </div>
+          <div id="onboardBox" style="display:none; max-width:560px; margin:22px auto 0;">
+            <div class="panelbox">
+              <div class="seclabel" style="margin-top:0">온보딩 — 역할 · 관심 분야 <span class="chip newc">공급 진입 시 1회</span></div>
+              <p style="font-size:12px; color:var(--slate); margin:0 0 12px;">여기서 고른 주 역할이 등록 1단계(ⓐ)로 그대로 이어져요. 수요 진입은 이 단계 없이 한 줄 입력으로 직행합니다.</p>
+              <div class="fieldlb">주 역할</div>
+              <select class="inp" id="obRole" style="margin-bottom:10px">
+                <option>개발 (프론트엔드)</option><option>개발 (백엔드)</option><option>디자인</option><option>기획</option><option>마케팅</option><option>생산 · 제조</option>
+              </select>
+              <div class="fieldlb">관심 분야</div>
+              <input class="inp" id="obInterest" value="복지 · 지역 커뮤니티" style="margin-bottom:14px">
+              <button class="btn btn-s" onclick="startRegister()">등록 이어가기 →</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ W-04 ① 한 줄 아이디어 입력 (1/3) ============ -->
+      <section class="scr" id="sec-W04">
+        <div class="dnav">
+          <button class="plogo" onclick="go('W01')">ORBIT</button>
+          <span class="pctx">ORBIT 시작</span>
+          <div class="pright"><span class="avatarc av-d sm">다솔</span></div>
+        </div>
+        <div class="pagepad" style="max-width:720px; margin:0 auto;">
+          <div class="prog"><span class="lbl">1/3</span><span class="seg on"></span><span class="seg"></span><span class="seg"></span><span class="stepnm">뭘 만들지 + 누구와</span></div>
+          <h1 class="h-title" style="margin-top:8px">풀고 싶은 문제를 한 줄로 적어주세요</h1>
+          <p class="h-sub" style="margin-bottom:18px">전문 용어 없이, 평소 말하듯 적으면 돼요. 나머지는 ORBIT이 정리합니다.</p>
+          <textarea class="inp" id="ideaInput" rows="3" maxlength="200" placeholder='예: "동네 돌봄 사각지대를 잇는 복지 앱을 만들고 싶다"'></textarea>
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-top:7px;">
+            <button class="linkbtn" id="ideaExample">예시 문장으로 채우기</button>
+            <span class="counter"><span id="ideaCount">0</span> / 200자 · 최소 10자</span>
+          </div>
+          <div style="margin-top:20px;">
+            <button class="btn btn-d" id="ideaSubmit" disabled onclick="submitIdea()">ORBIT 시작</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ W-05 프로젝트 페이지 자동 생성 (ORBIT 중…) ============ -->
+      <section class="scr" id="sec-W05">
+        <div class="loadwrap" id="loadingBox">
+          <div class="orbitspin" aria-hidden="true"></div>
+          <div class="brandword">ORBIT 중…</div>
+          <div class="lmsg">아이디어를 필요한 역할로 번역하고 있어요 · 약 1분</div>
+          <div class="lbar"><i id="loadBarFill"></i></div>
+          <div style="font-size:11px; color:var(--slate3);" id="loadStepTxt">계획서 뼈대를 세우는 중…</div>
+        </div>
+        <div class="loadwrap" id="loadFail" style="display:none;">
+          <div class="errcard">
+            <h4>번역이 지연되고 있어요</h4>
+            <p>다시 시도할까요? 잠시 몰린 요청 때문일 수 있어요. (자동 재시도 1회 · 시간 초과 90초)</p>
+            <button class="btn btn-nv sm" onclick="retryTranslate()">다시 시도</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ W-06 ① 구체화 결과 + 후보 미리보기 (1/3 · 결과 먼저) ============ -->
+      <section class="scr" id="sec-W06">
+        <div class="dnav">
+          <button class="plogo" onclick="go('W01')">ORBIT</button>
+          <span class="pctx">프로젝트 페이지</span>
+          <div class="pright"><span class="avatarc av-d sm">다솔</span></div>
+        </div>
+        <div class="pagepad">
+          <div class="prog"><span class="lbl">1/3</span><span class="seg on"></span><span class="seg"></span><span class="seg"></span><span class="stepnm">뭘 만들지 + 누구와 (한 화면 동시 제시)</span></div>
+          <div class="gatebar">
+            <span>⛬</span>
+            <span>이미 만들 방법이 그려지나요? → 외주(크몽)가 나을 수 있어요 · <b>통과가 기본</b></span>
+            <button class="linkbtn gx" onclick="gateExit()">외주가 나아요</button>
+          </div>
+
+          <div class="cols64">
+            <!-- 좌: 프로젝트 페이지 -->
+            <div>
+              <h2 class="projname" id="projName">이음 — 동네 돌봄을 잇다</h2>
+              <p class="projtag">복지관과 이웃 사이, 비어 있는 돌봄을 연결하는 동네 복지 서비스</p>
+
+              <div class="toggleseg" style="margin:14px 0 4px;">
+                <button class="on" id="tgMock" onclick="setProjView('mock')">목업형</button>
+                <button id="tgPlan" onclick="setProjView('plan')">기획서형</button>
+              </div>
+
+              <div id="projMockView">
+                <div class="mockrow">
+                  <div class="mockthumb"><span class="ex">예시 · 미리보기</span>
+                    <div class="mk-line" style="width:55%; margin-top:22px"></div><div class="mk-line" style="width:80%"></div>
+                    <div class="mk-box" style="height:44px; margin-top:8px"></div>
+                  </div>
+                  <div class="mockthumb"><span class="ex">예시 · 미리보기</span>
+                    <div class="mk-box" style="height:78px; margin-top:22px; position:relative;">
+                      <span class="mk-pin" style="top:16px; left:26px;"></span><span class="mk-pin" style="top:40px; left:70px;"></span><span class="mk-pin" style="top:24px; right:30px;"></span>
+                    </div>
+                  </div>
+                  <div class="mockthumb"><span class="ex">예시 · 미리보기</span>
+                    <div class="mk-box" style="height:30px; margin-top:22px"></div>
+                    <div class="mk-box" style="height:30px; margin-top:7px; opacity:.7"></div>
+                  </div>
+                </div>
+                <div class="seclabel">핵심 기능 — 이 기능을 만들 역할과 이어져 있어요</div>
+                <div class="featrow">
+                  <div class="featitem"><span class="fic">📝</span>돌봄 요청 등록 — 주민·보호자가 한 화면에서 요청<span class="frole chip rolebadge">개발</span></div>
+                  <div class="featitem"><span class="fic">🗺️</span>사각지대 지도 — 읍면동 단위 돌봄 수요 한눈에<span class="frole chip rolebadge">개발 · 디자인</span></div>
+                  <div class="featitem"><span class="fic">🔔</span>복지관 연계 알림 — 담당자에게 요청 전달<span class="frole chip postc">돌봄 현장 자문</span></div>
+                </div>
+                <div class="seclabel">수익 그림 (예시)</div>
+                <div class="card" style="font-size:12.5px; color:var(--navy2);">초기엔 무료로 동네 한 곳에서 검증 → 자리 잡으면 지자체·복지관 제휴(기관 구독)로 이어가요.</div>
+              </div>
+
+              <div id="projPlanView" style="display:none;">
+                <div class="plandoc">
+                  <dl>
+                    <dt>문제</dt><dd>복지관이 못 닿는 동네 돌봄 사각지대 — 요청과 자원이 서로를 못 찾는다</dd>
+                    <dt>대상</dt><dd>지역 주민·보호자, 그리고 이들을 잇는 복지관 담당자</dd>
+                    <dt>핵심 흐름</dt><dd>요청 등록 → 사각지대 지도 반영 → 담당자 연계 알림</dd>
+                    <dt>첫 성공 기준</dt><dd>한 동네에서 실제 돌봄 요청이 담당자에게 닿는 것</dd>
+                  </dl>
+                </div>
+                <p class="fieldhint" style="margin-top:8px;">화면이 어울리지 않는 분야(생산·판매·마케팅 등)를 위해 기획서형으로도 볼 수 있어요.</p>
+              </div>
+
+              <div style="display:flex; align-items:center; justify-content:space-between; margin:20px 0 8px;">
+                <span class="seclabel" style="margin:0">필요 팀원</span>
+                <span class="chip rolebadge" id="teamBadge">이번 역할(개발) · 0/1</span>
+              </div>
+              <div class="rolegrid">
+                <div class="rolecard active"><div class="rn">개발</div><div class="rs">모집중</div></div>
+                <div class="rolecard prep"><div class="rn">디자인</div><div class="rs">준비중</div></div>
+                <div class="rolecard prep"><div class="rn">기획</div><div class="rs">준비중</div></div>
+                <div class="rolecard prep"><div class="rn">돌봄 현장 자문</div><div class="rs">준비중 · 아이디어 특화</div></div>
+              </div>
+              <p class="fieldhint">개발부터 시작해요 — 디자인·기획은 곧 열려요.</p>
+
+              <div class="regenrow">
+                <button class="linkbtn" onclick="regen()">↩ 한 줄 다시 쓰기 (재생성)</button>
+                <span class="counter">재생성 <span id="regenCount">0</span>/3 (오늘)</span>
+              </div>
+            </div>
+
+            <!-- 우: 후보 패널 (동시 제시) -->
+            <div class="panelbox">
+              <div class="seclabel" style="margin-top:0">팀원 후보 미리보기 — <span style="color:var(--demand)">개발</span> 2명</div>
+              <div id="candList"></div>
+              <div class="emptystate" id="candEmpty" style="display:none;">
+                <div class="ei">🌱</div>
+                <h4>아직 이 역할의 검증 팀원이 없어요</h4>
+                <p>확보되면 알려드릴까요? 팀원 풀은 운영자가 한 명씩 검증해 채우고 있어요.</p>
+                <button class="btn btn-gh sm" onclick="ev('notify_request'); toast('알림을 신청했어요 — 검증 팀원이 확보되면 알려드릴게요')">알림 신청</button>
+              </div>
+              <div style="margin-top:14px;">
+                <button class="btn btn-d" id="acceptTranslateBtn" style="width:100%" onclick="ev('translation_accepted'); go('W07')">이 팀으로 진행</button>
+                <p class="fieldhint" style="text-align:center;">지금은 후보를 훑어만 봐도 돼요 — 정한 건 아무것도 없어요.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ W-07 ② 후보 확정 (2/3) ============ -->
+      <section class="scr" id="sec-W07">
+        <div class="dnav">
+          <button class="plogo" onclick="go('W01')">ORBIT</button>
+          <span class="pctx">함께할 팀원</span>
+          <div class="pright"><span class="avatarc av-d sm">다솔</span></div>
+        </div>
+        <div class="pagepad" style="max-width:920px; margin:0 auto;">
+          <div class="prog"><span class="lbl">2/3</span><span class="seg on"></span><span class="seg on"></span><span class="seg"></span><span class="stepnm">후보 확정 — 이번 역할은 1명이면 충분해요</span></div>
+          <div class="rejbanner" id="rejBanner"><span>↩</span><span id="rejBannerTxt"></span></div>
+          <h1 class="h-title">함께할 팀원 한 명을 골라주세요</h1>
+          <p class="h-sub" style="margin-bottom:18px">정확한 점수는 초대에 답한 뒤 열려요. 지금은 수준(높음·보통)과 약점, 그리고 '왜 맞는지'로 판단해요.</p>
+          <div class="cols55">
+            <div id="selCandA"></div>
+            <div id="selCandB"></div>
+          </div>
+          <div style="display:flex; align-items:center; gap:14px; margin-top:20px;">
+            <button class="btn btn-d" id="confirmCandBtn" disabled onclick="confirmCandidate()">이 팀원으로 진행</button>
+            <button class="linkbtn" onclick="ev('reselect_click'); toast('후보 풀을 다시 보여드려요 — 한 명과 안 맞아도 처음부터가 아니에요'); renderSelect()">↩ 다른 후보 다시 보기</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ W-08 ③ 매칭 3질문 + ORBIT 초대 (3/3) ============ -->
+      <section class="scr" id="sec-W08">
+        <div class="dnav">
+          <button class="plogo" onclick="go('W01')">ORBIT</button>
+          <span class="pctx">매칭 3질문</span>
+          <div class="pright"><span class="avatarc av-d sm">다솔</span></div>
+        </div>
+        <div class="pagepad" style="max-width:920px; margin:0 auto;">
+          <div class="prog"><span class="lbl">3/3</span><span class="seg on"></span><span class="seg on"></span><span class="seg on"></span><span class="stepnm">초대 — 질문 3개로 서로를 확인해요</span></div>
+          <h1 class="h-title">보낼 질문을 확인하고 초대하세요</h1>
+          <p class="h-sub" style="margin-bottom:18px">받는 사람: <b id="invTargetName">박준영</b> · 개발 — 답변이 오면 궁합 점수가 열려요.</p>
+          <div class="cols55">
+            <div>
+              <div class="seclabel" style="margin-top:0">ORBIT이 계획서를 분석해 만든 질문 <span class="chip mvpc">자동</span></div>
+              <div class="qcard autoq"><span class="qno">Q1</span><span class="auto-tag">계획서 분석</span><p class="qtx">복지관·지자체와 연계해 본 경험이 있나요? 없다면 첫 접점을 어떻게 만들지 궁금해요.</p></div>
+              <div class="qcard autoq"><span class="qno">Q2</span><span class="auto-tag">계획서 분석</span><p class="qtx">주 10시간 안팎, 8주 안에 첫 작동 버전을 낸다면 어떤 기능부터 잘라내시겠어요?</p></div>
+            </div>
+            <div>
+              <div class="seclabel" style="margin-top:0">내 질문 하나를 더할 수 있어요 <span class="chip postc">선택</span></div>
+              <div class="q3fold" id="q3Fold">
+                <button onclick="toggleQ3()">＋ Q3 내 질문 추가 (선택)</button>
+                <div class="q3body">
+                  <textarea class="inp" id="q3Input" rows="2" placeholder="예: 초기 6개월은 수익보다 검증이 우선인데, 괜찮으세요?"></textarea>
+                  <div class="softnote" id="q3Guard" style="display:none; margin-top:8px;"><span>💬</span><span>나이·성별 같은 질문은 매칭에 도움이 되지 않아요 — 일하는 방식을 물어보는 건 어때요?</span></div>
+                </div>
+              </div>
+              <div style="margin-top:18px;">
+                <button class="btn btn-d" onclick="openModal('M02')">ORBIT 초대 보내기</button>
+                <p class="fieldhint">보내기 전에 한 번 더 확인해요 · 초대 유효기간 7일</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ W-09 팀원 등록·인증 (4단계 · 최초 1회) ============ -->
+      <section class="scr" id="sec-W09">
+        <div class="dnav">
+          <button class="plogo" onclick="go('W01')">ORBIT</button>
+          <span class="pctx">팀원 등록 — 최초 1회면 돼요</span>
+          <div class="pright"><span class="avatarc av-s sm">준영</span></div>
+        </div>
+        <div class="pagepad">
+          <div class="wiz">
+            <div class="wizsteps" id="wizSteps">
+              <div class="wst" data-step="a"><span class="wn">ⓐ</span>역할 · 관심</div>
+              <div class="wst" data-step="b"><span class="wn">ⓑ</span>실력 증명</div>
+              <div class="wst" data-step="c"><span class="wn">ⓒ</span>베팅 의향</div>
+              <div class="wst" data-step="d"><span class="wn">ⓓ</span>필수 동의</div>
+            </div>
+            <div>
+              <!-- ⓐ -->
+              <div class="wpane" id="wp-a">
+                <h1 class="h-title" style="font-size:20px;">ⓐ 역할 · 관심 분야</h1>
+                <p class="h-sub" style="margin-bottom:16px;">진입할 때 골라둔 값이에요 — 확인하고 수정만 하면 돼요.</p>
+                <div class="fieldlb">주 역할</div>
+                <input class="inp" id="regRole" value="개발 (프론트엔드)" style="margin-bottom:10px; max-width:420px;">
+                <div class="fieldlb">관심 분야</div>
+                <input class="inp" id="regInterest" value="복지 · 지역 커뮤니티" style="margin-bottom:18px; max-width:420px;">
+                <button class="btn btn-s" onclick="wizGo('b')">다음 — 실력 증명</button>
+              </div>
+              <!-- ⓑ -->
+              <div class="wpane" id="wp-b" style="display:none;">
+                <h1 class="h-title" style="font-size:20px;">ⓑ 실력 증명 <span class="verifybadge">제출 후 검증 대기</span></h1>
+                <p class="h-sub" style="margin-bottom:16px;">결과물과 평판을 남기면, 운영자가 직접 확인한 뒤 후보로 소개돼요. 이 데이터가 아이디어를 낸 분에게 보이는 후보 카드의 원천이에요.</p>
+                <div class="fieldlb">결과물 링크</div>
+                <input class="inp" value="github.com/junyoung-park · careconnect.vercel.app" style="margin-bottom:10px; max-width:520px;">
+                <div class="fieldlb">평판 (추천 · 이력)</div>
+                <textarea class="inp" rows="2" style="margin-bottom:18px; max-width:520px;">중견 IT기업 프론트엔드 8년 차 · 사내 해커톤 2회 수상 · 동료 추천서 1건</textarea>
+                <button class="btn btn-s" onclick="wizGo('c')">다음 — 베팅 의향</button>
+              </div>
+              <!-- ⓒ -->
+              <div class="wpane" id="wp-c" style="display:none;">
+                <h1 class="h-title" style="font-size:20px;">ⓒ 베팅 의향</h1>
+                <p class="h-sub" style="margin-bottom:16px;">보수 대신 지분·성과를 나누는 방식을 받아들일 수 있는지 알려주세요. 후보 소개와 궁합 계산의 핵심 신호예요.</p>
+                <label class="radioopt" id="betOptA"><input type="radio" name="betOpt" onchange="setBet('equity')"><span><span class="rt">지분 · 성과 배분을 수용할 수 있어요</span><span class="rd" style="display:block">잘되면 내 몫이 되는 판을 원해요 — 본업과 병행할 수 있어요.</span></span></label>
+                <label class="radioopt" id="betOptB"><input type="radio" name="betOpt" onchange="setBet('paid')"><span><span class="rt">선보수가 필요해요 (생계형)</span><span class="rd" style="display:block">지금은 확정 보수가 있어야 움직일 수 있어요.</span></span></label>
+                <div class="softnote" id="betSelfNote" style="display:none; margin-bottom:12px;"><span>⛬</span><span>선보수가 필요하다면 지금 단계의 ORBIT과는 맞지 않을 수 있어요 — 그래도 계속 진행할 수 있어요.</span></div>
+                <button class="btn btn-s" id="betNextBtn" disabled onclick="ev('betting_intent_set'); wizGo('d')">다음 — 필수 동의</button>
+              </div>
+              <!-- ⓓ -->
+              <div class="wpane" id="wp-d" style="display:none;">
+                <h1 class="h-title" style="font-size:20px;">ⓓ 필수 동의</h1>
+                <p class="h-sub" style="margin-bottom:16px;">아이디어를 낸 분을 보호하기 위한 약속이에요. 직접 체크해야 효력이 생겨서, 미리 채워두지 않았어요.</p>
+                <div class="agreebox"><input type="checkbox" id="ndaChk" onchange="checkRegAgree()" aria-label="IP 귀속·비밀유지 동의"><label for="ndaChk">아이디어의 지식재산 귀속과 비밀유지에 동의합니다 <small>초대받은 아이디어를 밖으로 옮기지 않아요 (NDA-lite)</small></label></div>
+                <div class="agreebox" style="margin-bottom:16px;"><input type="checkbox" id="privChk" onchange="checkRegAgree()" aria-label="개인정보·프로필 공개 동의"><label for="privChk">등록 정보 활용과, 수락 시 상세 프로필 공개에 동의합니다 <small>수락하기 전엔 간단 프로필만 보여요</small></label></div>
+                <button class="btn btn-s" id="regDoneBtn" disabled onclick="finishRegister()">ORBIT 검증 신청</button>
+                <p class="fieldhint">신청하면 '검증 대기' 상태가 되고, 승인되면 후보로 소개돼요. 재방문 때는 이 과정 없이 받은 초대함으로 바로 가요.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ W-10 받은 ORBIT 초대 (수신함 · 공급 메인) ============ -->
+      <section class="scr" id="sec-W10">
+        <div class="dnav">
+          <button class="plogo" onclick="go('W01')">ORBIT</button>
+          <span class="pctx">받은 초대 — 공급 메인</span>
+          <div class="pright"><span class="avatarc av-s sm">준영</span></div>
+        </div>
+        <div class="pagepad">
+          <h1 class="h-title">받은 ORBIT 초대</h1>
+          <p class="h-sub" style="margin-bottom:18px">일감을 사냥하러 다니지 않아도, 베팅할 만한 판이 여기로 와요.</p>
+          <div class="inboxrow">
+            <div>
+              <div id="inviteList"></div>
+              <div class="emptystate" id="inboxEmpty" style="display:none; margin-bottom:9px;">
+                <div class="ei">📭</div>
+                <h4>아직 도착한 초대가 없어요</h4>
+                <p>초대가 오면 이메일로도 알려드려요. (데모: 수요자 여정에서 초대를 보내면 여기 도착해요)</p>
+              </div>
+              <div class="posttab">🔎 프로젝트 둘러보기 <span class="chip postc" style="margin-left:auto">준비중</span></div>
+            </div>
+            <div class="panelbox" id="invitePreview"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ W-11 매칭 3질문 답변 → 수락/거절 ============ -->
+      <section class="scr" id="sec-W11">
+        <div class="dnav">
+          <button class="plogo" onclick="go('W01')">ORBIT</button>
+          <span class="pctx">초대 응답</span>
+          <div class="pright"><span class="avatarc av-s sm">준영</span></div>
+        </div>
+        <div class="pagepad" style="max-width:960px; margin:0 auto;">
+          <h1 class="h-title">받은 매칭 3질문에 답해주세요</h1>
+          <p class="h-sub" style="margin-bottom:18px"><b>이음 — 동네 돌봄을 잇다</b> · 개발 · 보낸 사람 김다솔 — 답변이 있어야 궁합 점수를 계산할 수 있어요.</p>
+          <div class="cols64">
+            <div>
+              <div class="qcard"><span class="qno">Q1</span><p class="qtx">복지관·지자체와 연계해 본 경험이 있나요? 없다면 첫 접점을 어떻게 만들지 궁금해요.</p><textarea class="inp ansInp" rows="2" style="margin-top:9px" placeholder="답변을 적어주세요"></textarea></div>
+              <div class="qcard"><span class="qno">Q2</span><p class="qtx">주 10시간 안팎, 8주 안에 첫 작동 버전을 낸다면 어떤 기능부터 잘라내시겠어요?</p><textarea class="inp ansInp" rows="2" style="margin-top:9px" placeholder="답변을 적어주세요"></textarea></div>
+              <div class="qcard" id="q3AnsCard"><span class="qno">Q3</span><p class="qtx" id="q3AnsTxt">초기 6개월은 수익보다 검증이 우선인데, 괜찮으세요?</p><textarea class="inp ansInp" rows="2" style="margin-top:9px" placeholder="답변을 적어주세요"></textarea></div>
+              <button class="linkbtn" onclick="fillSampleAnswers()">예시 답변으로 채우기 (데모)</button>
+            </div>
+            <div>
+              <div class="shieldnote"><span>🛡</span><span>지분·지식재산은 <b>합의 템플릿까지만</b> ORBIT이 함께해요 — 정산과 계약은 두 분이 직접 해요. 수락해도 바로 계약이 되는 건 아니에요.</span></div>
+              <div style="margin-top:16px; display:flex; gap:10px;">
+                <button class="btn btn-s" id="acceptBtn" disabled onclick="acceptInvite()">수락</button>
+                <button class="btn btn-gh" onclick="openRejectBox()">거절</button>
+              </div>
+              <p class="fieldhint">받은 질문에 모두 답하면 수락할 수 있어요.</p>
+              <div id="rejectBox" style="display:none; margin-top:14px;">
+                <div class="card">
+                  <div class="fieldlb">거절 사유 (선택)</div>
+                  <select class="inp" id="rejectReason" style="margin-bottom:10px;">
+                    <option value="">선택 안 함</option>
+                    <option>지분 조건이 불명확해요</option>
+                    <option>지금은 시간이 부족해요</option>
+                    <option>아이디어 확신이 부족해요</option>
+                    <option>기타</option>
+                  </select>
+                  <button class="btn btn-gh sm" onclick="rejectInvite()">거절 확정</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ W-12 ORBIT 궁합 결과 (최종 3축 · 유일한 점수 공개 지점) ============ -->
+      <section class="scr" id="sec-W12">
+        <div class="dnav">
+          <button class="plogo" onclick="go('W01')">ORBIT</button>
+          <span class="pctx">ORBIT 궁합</span>
+          <div class="pright"><span class="avatarc av-d sm">다솔</span><span class="avatarc av-s sm">준영</span></div>
+        </div>
+        <div class="pagepad">
+          <div class="matchwrap">
+            <div class="matchkick">ORBIT 궁합 결과</div>
+            <div class="lockflip" id="lockIcon">🔒</div>
+            <div class="scorerow">
+              <div class="scoreblock"><div class="gauge" id="g1" style="--gc:var(--demand)"><div class="gv"><span class="gn"><span id="n1">0</span><small>%</small></span></div></div><div class="gl">역할 적합도</div><div class="gs">결과물 · 답변 기반</div></div>
+              <div class="scoreblock"><div class="gauge" id="g2" style="--gc:var(--orbit)"><div class="gv"><span class="gn"><span id="n2">0</span><small>%</small></span></div></div><div class="gl">도메인 적합도</div><div class="gs">복지 현장 이해</div></div>
+              <div class="scoreblock"><div class="gauge" id="g3" style="--gc:var(--green)"><div class="gv"><span class="gn"><span id="n3">0</span><small>%</small></span></div></div><div class="gl">베팅 의향 적합도</div><div class="gs">지분 · 성과 수용</div></div>
+            </div>
+            <div class="revealchip" id="revealChip" style="visibility:hidden;">🔓 최종 3축 공개 — 답변이 도착해 자물쇠가 풀렸어요</div>
+            <div class="whyfinal">
+              <h4>왜 맞는지</h4>
+              <p><b>역할 88%</b> — 결과물과 답변 모두 화면 구현에 강한 신호예요. <b>베팅 91%</b> — 지분·성과 수용 의향과 "보수보다 내 지분이 남는 판" 답변이 일치해요. <b>도메인 74%</b> — 복지 현장 경험은 없지만, 공공데이터로 시작해 복지관 한 곳부터 좁히는 접근이 구체적이에요.</p>
+            </div>
+            <div class="seclabel" style="text-align:left; max-width:620px; margin:0 auto 8px;">상세 프로필 — 수락 후에만 서로 공개돼요</div>
+            <div class="profilepair">
+              <div class="profcard"><div class="ph"><span class="avatarc av-d">다솔</span><span><span class="pn">김다솔</span><br><span class="pr">15년 차 사회복지사 · 수요</span></span></div><ul><li>지역 돌봄 사각지대 현장 경험 15년</li><li>첫 프로젝트 · 검증 우선, 지분 협의 열려 있음</li></ul></div>
+              <div class="profcard"><div class="ph"><span class="avatarc av-s">준영</span><span><span class="pn">박준영</span><br><span class="pr">8년 차 프론트엔드 개발자 · 공급</span></span></div><ul><li>중견 IT기업 재직 · 본업 병행(주 10시간)</li><li>결과물 2건 검증 완료 · 지분·성과 수용</li></ul></div>
+            </div>
+            <p class="profnote">간단 프로필만 보이다가, 수락하면 이렇게 상세가 서로 교환돼요.</p>
+            <button class="btn btn-j" onclick="go('W13')">합류 합의로 진행</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ W-13 합류 합의 (양쪽 동의 · ★NSM) ============ -->
+      <section class="scr" id="sec-W13">
+        <div class="dnav">
+          <button class="plogo" onclick="go('W01')">ORBIT</button>
+          <span class="pctx">ORBIT 완료 — 합류 합의</span>
+          <div class="pright"><span class="avatarc av-d sm">다솔</span><span class="avatarc av-s sm">준영</span></div>
+        </div>
+        <div class="pagepad" style="max-width:860px; margin:0 auto;">
+          <h1 class="h-title">합류 합의</h1>
+          <p class="h-sub" style="margin-bottom:18px">역할·기여·보상 조건을 함께 확인하고, 양쪽이 동의하면 팀이 시작돼요. ORBIT은 이 템플릿까지만 함께하고, 실제 계약과 정산은 두 분의 몫이에요.</p>
+          <div class="agreegrid">
+            <div class="agreefield"><div class="af">역할</div><input class="inp" value="개발 (프론트엔드 리드)"></div>
+            <div class="agreefield"><div class="af">기여 조건</div><input class="inp" value="주 10시간 내외 · 8주 내 첫 작동 버전"></div>
+            <div class="agreefield"><div class="af">보상 · 지분 조건</div><input class="inp" value="지분 15% · 세부는 법인 설립 시 재협의"></div>
+          </div>
+          <div class="signrow">
+            <button class="btn btn-j signbtn" id="signDemand" onclick="sign('demand')"><span class="todo">수요자 동의 — 김다솔</span><span class="done">✓ 김다솔 동의함</span></button>
+            <button class="btn btn-j signbtn" id="signSupply" onclick="sign('supply')"><span class="todo">공급자 동의 — 박준영</span><span class="done">✓ 박준영 동의함</span></button>
+          </div>
+          <p class="waitnote" id="signWait">한쪽이 먼저 동의하면 '상대 동의 대기' 상태가 돼요 · 대기 7일이 지나면 만료돼요 · 동의 후엔 철회할 수 없어요</p>
+          <div class="nsmband" id="nsmBand">
+            <div class="st">★ NORTH STAR METRIC</div>
+            <div class="bg">ORBIT 완료 — 주간 합류 합의 수 +1</div>
+            <div class="sb">'한 줄 → 구체화 수용 → 후보 선택 → 합류 의향 상호 합의'까지 도달했어요 · 1역할 합의 = 팀 1개</div>
+          </div>
+          <div style="margin-top:18px;">
+            <button class="btn btn-j" id="toHandoffBtn" style="display:none;" onclick="go('W14')">협업 채널 연결로 →</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ W-14 협업 채널 연결 · 책임 경계 고지 ============ -->
+      <section class="scr" id="sec-W14">
+        <div class="dnav">
+          <button class="plogo" onclick="go('W01')">ORBIT</button>
+          <span class="pctx">협업 연결 — 플랫폼 밖으로</span>
+          <div class="pright"><span class="avatarc av-d sm">다솔</span><span class="avatarc av-s sm">준영</span></div>
+        </div>
+        <div class="pagepad">
+          <div class="handwrap">
+            <div style="font-size:40px;">🤝</div>
+            <h1 class="h-title" style="margin-top:8px;">팀이 만들어졌어요</h1>
+            <p class="h-sub">이제 대화는 슬랙에서 이어가요 — 운영자가 열어둔 채널로 초대할게요.</p>
+            <div style="margin-top:18px;">
+              <button class="btn btn-j slackbtn" onclick="ev('handoff_click'); toast('슬랙 채널 초대 링크를 열어요 (개인정보는 주소에 담지 않아요)')">슬랙 채널 참여하기</button>
+            </div>
+            <div class="boundary">
+              <h4>책임 경계 고지</h4>
+              <p>ORBIT은 팀 구성(합류 합의)까지입니다. 이후 대화·제작·정산·지분은 당사자 책임입니다.</p>
+            </div>
+            <button class="btn btn-gh" onclick="go('W15a')">대시보드로 돌아가기</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ W-15a~e 공통 셸 (좌측 사이드바 내비) ============ -->
+      <section class="scr" id="sec-W15">
+        <div class="shell">
+          <nav class="shellside">
+            <div style="padding:4px 12px 12px;"><button class="plogo" onclick="go('W01')">ORBIT</button></div>
+            <button class="snav" data-view="a" onclick="go('W15a')"><span class="ic">🏠</span>대시보드</button>
+            <button class="snav" data-view="b" onclick="go('W15b')"><span class="ic">💡</span>팀 만들기</button>
+            <button class="snav" data-view="c" onclick="go('W15c')"><span class="ic">🛠️</span>합류</button>
+            <button class="snav" data-view="d" onclick="go('W15d')"><span class="ic">👤</span>프로필 · 인증</button>
+            <button class="snav" data-view="e" onclick="go('W15e')"><span class="ic">🔔</span>알림<span id="notiDot" class="postpill" style="display:none; background:var(--red-bg); color:var(--red);">N</span></button>
+            <button class="snav disabled" onclick="toast('설정·결제는 준비중이에요 (다음 단계)')"><span class="ic">⚙️</span>설정 · 결제<span class="postpill">준비중</span></button>
+          </nav>
+          <div class="shellmain">
+
+            <!-- a. 대시보드 -->
+            <div class="w15view" id="v15a">
+              <h1 class="h-title">안녕하세요, 다솔 님</h1>
+              <p class="h-sub" style="margin-bottom:18px">내 활동을 한눈에 — 역할별 탭으로 각 여정에 들어갈 수 있어요.</p>
+              <div class="sumgrid">
+                <div class="sumcard"><div class="sn" id="sumProg" style="color:var(--demand)">0</div><div class="sl">진행중</div></div>
+                <div class="sumcard"><div class="sn" id="sumDone" style="color:var(--green)">0</div><div class="sl">완료 (합의)</div></div>
+                <div class="sumcard"><div class="sn" id="sumWait" style="color:var(--gate)">0</div><div class="sl">대기</div></div>
+              </div>
+              <div class="seclabel">바로 가기</div>
+              <div class="cols55">
+                <button class="card" style="text-align:left; cursor:pointer;" onclick="go('W15b')"><b style="color:var(--demand)">💡 팀 만들기</b><p style="margin:5px 0 0; font-size:12px; color:var(--slate);">내 프로젝트 · 모집 현황 · 내가 초대한 팀원</p></button>
+                <button class="card" style="text-align:left; cursor:pointer;" onclick="go('W15c')"><b style="color:var(--supply)">🛠️ 합류</b><p style="margin:5px 0 0; font-size:12px; color:var(--slate);">받은 초대 · 상태(대기/수락/거절)</p></button>
+              </div>
+            </div>
+
+            <!-- b. 팀 만들기 탭 (수요) -->
+            <div class="w15view" id="v15b" style="display:none;">
+              <div class="tabrow"><button class="tabbtn on-d">팀 만들기 (수요)</button><button class="tabbtn" onclick="go('W15c')">합류 (공급)</button></div>
+              <div class="seclabel" style="margin-top:0">내 프로젝트 — 진행중 프로젝트는 1개까지예요</div>
+              <div id="myProjectList"></div>
+              <div class="seclabel">내가 초대한 팀원</div>
+              <div id="myInviteList"></div>
+              <div class="card ghosty" style="margin-top:10px;">받은 합류 신청 — 팀원이 먼저 신청하는 기능은 준비중이에요 <span class="chip postc">준비중</span></div>
+              <div style="margin-top:16px;"><button class="btn btn-soft-d sm" id="nextIdeaBtn" onclick="nextIdea()">＋ 다음 아이디어 시작하기</button></div>
+            </div>
+
+            <!-- c. 합류 탭 (공급) -->
+            <div class="w15view" id="v15c" style="display:none;">
+              <div class="tabrow"><button class="tabbtn" onclick="go('W15b')">팀 만들기 (수요)</button><button class="tabbtn on-s">합류 (공급)</button></div>
+              <div class="seclabel" style="margin-top:0">받은 ORBIT 초대</div>
+              <div id="supInviteList"></div>
+              <div class="card ghosty" style="margin-top:10px;">신청한 프로젝트 — 먼저 찾아가 신청하는 기능은 준비중이에요 <span class="chip postc">준비중</span></div>
+            </div>
+
+            <!-- d. 프로필·인증 -->
+            <div class="w15view" id="v15d" style="display:none;">
+              <h1 class="h-title" style="font-size:20px;">프로필 · 인증</h1>
+              <p class="h-sub" style="margin-bottom:16px">고르기 전엔 간단 프로필만, 수락한 뒤엔 상세 프로필이 서로 공개돼요. 수정하면 궁합 계산에 다시 반영돼요.</p>
+              <div class="cols55">
+                <div class="card">
+                  <div class="candhead"><span class="avatarc av-s">준영</span><span><span class="nm">박준영</span><br><span class="rl">개발 (프론트엔드) · 8년 차</span></span><span class="right chip state-ok">실력 인증 승인</span></div>
+                  <div class="seclabel">베팅 의향</div>
+                  <p style="margin:0; font-size:12.5px; color:var(--navy2);">지분·성과 배분 수용 — 본업 병행(주 10시간)</p>
+                  <div class="seclabel">간단 → 상세 공개 범위</div>
+                  <p style="margin:0 0 12px; font-size:12px; color:var(--slate);">간단: 역할 · 수준 · 약점 · 왜 맞는지 / 상세: 이름 · 결과물 링크 · 이력 (수락 후)</p>
+                  <button class="btn btn-gh sm" onclick="toast('실력 인증 재신청 — 운영자 검증 큐로 접수됐어요')">실력 인증 재신청</button>
+                </div>
+                <div>
+                  <div class="card" style="margin-bottom:10px;"><b style="font-size:13px;">인증 상태</b><p style="margin:6px 0 0; font-size:12px; color:var(--slate);">검증 대기 → <b style="color:var(--green)">승인</b> — 운영자가 결과물·평판을 직접 확인했어요. 반려되면 사유와 함께 재신청할 수 있어요.</p></div>
+                  <div class="card ghosty">받은 평가 — 협업이 끝난 뒤부터 쌓여요 <span class="chip postc">준비중</span></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- e. 알림 -->
+            <div class="w15view" id="v15e" style="display:none;">
+              <h1 class="h-title" style="font-size:20px;">알림</h1>
+              <p class="h-sub" style="margin-bottom:16px">초대·응답·합의 소식이 여기 모여요. 초대 도착과 응답 결과는 이메일로도 보내드려요.</p>
+              <div id="notiList"></div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+    </div><!-- /vp -->
+  </div><!-- /browser -->
+</main>
+
+<p class="demotagline">
+  ORBIT 프로토타입 · 데스크탑 v2.0 — MVP 21화면 + 모달 2종 · 작성자 이승주<br>
+  기준 문서 5종 정합 (PRD v2.1.1 · IA v2.1.1 · UserFlow v1.1 · Wireframe Desktop v1.1 · 화면정의서 v1.0) · 상단 「스펙 · 계측」에서 화면별 근거와 이벤트 로그를 확인하세요
+</p>
+
+<!-- ============ M-01 로그인 게이팅 모달 ============ -->
+<div class="modalveil" id="modal-M01" role="dialog" aria-modal="true" aria-label="로그인">
+  <div class="modalcard">
+    <h3>먼저 로그인해 주세요</h3>
+    <p class="mh">가입할 때와 같은 폼이에요 — 끝나면 가려던 화면으로 이어져요.</p>
+    <button class="btn btn-nv sso" onclick="ev('signup_complete'); closeModal('M01'); go('W03')">소셜 계정으로 계속</button>
+    <button class="btn btn-gh sso" onclick="ev('signup_complete'); closeModal('M01'); go('W03')">이메일로 계속</button>
+    <button class="linkbtn" style="display:block; margin:10px auto 0;" onclick="closeModal('M01')">닫기 (ESC)</button>
+  </div>
+</div>
+
+<!-- ============ M-02 초대 발송 전 확인 모달 ============ -->
+<div class="modalveil" id="modal-M02" role="dialog" aria-modal="true" aria-label="초대 발송 전 확인">
+  <div class="modalcard">
+    <h3>보내기 전에 확인해요</h3>
+    <p class="mh">보낼 질문과 받는 팀원을 확인하세요 · 유효기간 7일</p>
+    <div class="card" style="margin-bottom:10px;">
+      <div class="candhead"><span class="avatarc av-s sm">준영</span><span><span class="nm" style="font-size:13px;" id="m02Name">박준영</span><br><span class="rl">개발 (프론트엔드)</span></span></div>
+    </div>
+    <div class="qcard" style="margin-bottom:7px;"><span class="qno">Q1</span><p class="qtx" style="font-size:12.5px;">복지관·지자체와 연계해 본 경험이 있나요? 없다면 첫 접점을 어떻게 만들지 궁금해요.</p></div>
+    <div class="qcard" style="margin-bottom:7px;"><span class="qno">Q2</span><p class="qtx" style="font-size:12.5px;">주 10시간 안팎, 8주 안에 첫 작동 버전을 낸다면 어떤 기능부터 잘라내시겠어요?</p></div>
+    <div class="qcard" id="m02q3" style="margin-bottom:12px; display:none;"><span class="qno">Q3</span><p class="qtx" style="font-size:12.5px;" id="m02q3Txt"></p></div>
+    <div style="display:flex; gap:9px;">
+      <button class="btn btn-d" style="flex:1" onclick="sendInvite()">초대 보내기</button>
+      <button class="btn btn-gh" onclick="closeModal('M02')">취소</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toastBox" role="status"></div>
+
+<script>
+/* ============================================================
+   ORBIT Prototype v2.0 — 상태 · 라우팅 · 계측 (데모 로직)
+   ============================================================ */
+var S = {
+  side:null, idea:'', regen:0,
+  selected:null, q3:'',
+  invite:{status:null, reason:''},
+  agree:{demand:false, supply:false},
+  nsm:0, seen:{}, notis:[], unread:0,
+  w5fail:false, w6empty:false, w10empty:false,
+  cur:'W01', curView:'a', evtCount:0
+};
+
+var CANDS = {
+  pjy:{id:'pjy', nm:'박준영', shortNm:'준영', meta:'개발 (프론트엔드) · 8년 차 · 중견 IT 재직',
+    axes:[['역할 높음','hi'],['도메인 보통','mid'],['베팅 높음','hi']], weak:'약점: 사이드 협업 이력 적음',
+    why:'결과물 기준 <b>화면 구현력이 상위 신호</b>예요. 지분·성과 수용 의향이 뚜렷하고, 본업 병행 페이스(주 10시간)를 조건으로 밝혔어요.',
+    fin:[88,74,91],
+    finWhy:'<b>역할 88%</b> — 결과물과 답변 모두 화면 구현에 강한 신호예요. <b>베팅 91%</b> — 지분·성과 수용 의향과 "보수보다 내 지분이 남는 판" 답변이 일치해요. <b>도메인 74%</b> — 복지 현장 경험은 없지만, 공공데이터로 시작해 복지관 한 곳부터 좁히는 접근이 구체적이에요.',
+    prof:['중견 IT기업 재직 · 본업 병행(주 10시간)','결과물 2건 검증 완료 · 지분·성과 수용']},
+  lsy:{id:'lsy', nm:'이서연', shortNm:'서연', meta:'개발 (풀스택) · 6년 차',
+    axes:[['역할 보통','mid'],['도메인 높음','hi'],['베팅 보통','mid']], weak:'약점: 화면 구현 심화 이력 보통',
+    why:'복지관 연계 봉사 플랫폼 결과물이 있어 <b>현장 이해 신호가 높아요</b>. 지분 수용은 조건부(범위 협의)예요.',
+    fin:[76,89,72],
+    finWhy:'<b>도메인 89%</b> — 복지관 연계 결과물과 답변의 현장 감각이 일치해요. <b>역할 76%</b> — 풀스택 폭은 넓지만 화면 구현 심화 이력은 보통이에요. <b>베팅 72%</b> — 지분 수용이 조건부라, 합의 템플릿에서 범위를 좁혀야 해요.',
+    prof:['봉사 플랫폼 운영 경험 · 현장 이해 높음','결과물 1건 검증 완료 · 지분 수용 조건부']}
+};
+
+var EVMETA = {
+  landing_cta_click:{h:[]}, signup_complete:{h:[]},
+  enter_side_selected:{h:['H1수요','H1공급']},
+  idea_typed:{h:[]}, idea_submitted:{h:[]},
+  translate_success:{h:['H2']}, translate_fail:{h:['H2']},
+  gate_exit:{h:['H1수요']}, regenerate_click:{h:['H2']},
+  translation_accepted:{h:['H2'], star:true},
+  candidate_preview_view:{h:['H3']}, candidate_selected:{h:['H3']},
+  reselect_click:{h:['H4']}, invite_sent:{h:['H1','H3']},
+  supplier_register_complete:{h:['H1공급']},
+  betting_intent_set:{h:['H1공급'], star:true},
+  self_select_exit:{h:['H1공급']}, invite_opened:{h:['H1공급']},
+  respond_accept:{h:['H3','H4']}, respond_reject:{h:['H3','H4']},
+  match_result_view:{h:['H3']},
+  agreement_signed:{h:['NSM 선행']},
+  agreement_both_signed:{h:['NSM'], star:true},
+  handoff_click:{h:[]}, revisit_type:{h:['H4','H6']},
+  notify_request:{h:['보조']}
+};
+
+var SPEC = {
+  W01:{nm:'서비스 소개 (Landing)', ia:'IA 0.0 진입·인증 › 서비스 소개', url:'orbit.app', lane:'o', persp:['o','공통 · 로그인 전'], scope:'MVP', hyp:[], notes:[
+    ['1','<b>한 줄 가치 제안 + 작동 방식 3단계</b>가 히어로. CTA 문구는 브랜드 언어 "ORBIT 시작"으로 통일.','PRD 한줄요약·§8 / IA 0.0'],
+    ['2','<span class="why">왜 현황 지표·이용 사례가 없나:</span> 초기 0~한자릿수 수치는 신뢰를 훼손 → <b>콜드스타트 역효과 방지</b>, 수치 확보 후 노출.','PRD §7·§9 / IA 0.0 (숨김)'],
+    ['3','푸터 약관·개인정보 링크는 법적 상시 노출 요구로 <b>MVP 승격 제안(OI#10)을 반영</b>.','화면정의서 OI#10']]},
+  W02:{nm:'회원가입 → 약관·개인정보 동의', ia:'IA 0.0 › 상단 인증', url:'orbit.app/signup', lane:'o', persp:['o','공통'], scope:'MVP', hyp:[], notes:[
+    ['1','<b>소셜 로그인 권장</b>으로 진입 마찰 최소화 — 비전문가 이탈 방지. 이메일은 폴백.','PRD §6④ / IA 0.0'],
+    ['2','<span class="why">왜 여기서 분리:</span> 이 동의는 <b>일반 약관</b> — 공급 등록의 IP·NDA-lite 동의(W-09 ⓓ)와 성격·주체가 달라 별도 관리.','법무 · PRD §6③ⓓ와 구분'],
+    ['3','기본 미체크 → 체크해야 "동의하고 가입" 활성. 아이디·비번 찾기는 Post(소셜 우선).','화면정의서 W-02']]},
+  M01:{nm:'[모달] 로그인 게이팅', ia:'IA 0.0 › 게이팅 모달', url:'orbit.app', lane:'o', persp:['o','공통 · 비로그인'], scope:'MVP', hyp:[], notes:[
+    ['1','비로그인으로 /enter 이하 접근 시 <b>별도 화면이 아니라 동일 폼을 모달</b>로 — 흐름 단절 최소화, 목적지 URL 보존.','PRD §3·§6④ / IA 0.0']]},
+  W03:{nm:'서비스 진입 분기 + 온보딩', ia:'IA 0.0 › 서비스 진입(분기)', url:'orbit.app/enter', lane:'o', persp:['o','공통 · 로그인'], scope:'MVP', hyp:['H1수요','H1공급'], isnew:true, notes:[
+    ['1','<span class="why">왜 이 분기가 핵심 라우팅:</span> 선택 side를 <b>진입 시점에 캡처</b>해 코호트 분리 — H1수요·H1공급을 각각 측정.','PRD §2·§6④ / IA 0.0'],
+    ['2','온보딩은 분기 뒤 실행 — <b>수요=스킵(한 줄 직행)</b> · <b>공급=역할·관심 1회 입력(=등록 ⓐ 캡처)</b>.','PRD §6③ / IA 0.0 온보딩']]},
+  W04:{nm:'① 한 줄 아이디어 입력 (1/3)', ia:'IA 1.0 › ①단계', url:'orbit.app/start', lane:'d', persp:['d','수요자 · 김다솔'], scope:'MVP', hyp:[], notes:[
+    ['1','<span class="why">왜 진행바 상단 고정:</span> 비전문가의 "지금 어디쯤?" 불안 제거 = 이탈 방지 장치.','PRD §6② / IA 1.0'],
+    ['2','<b>최소 입력 원칙 — 한 줄만.</b> 발주서를 못 쓰는 사람이 타깃이라 입력 부담을 극단적으로 낮춤.','PRD §3·§6②ⓐ·§9'],
+    ['3','유효성은 <b>최소 10자·최대 200자(OI#4 제안 반영)</b> — 빈 값이면 CTA 비활성.','화면정의서 OI#4']]},
+  W05:{nm:'프로젝트 페이지 자동 생성 (ORBIT 중…)', ia:'IA 1.0 › 프로젝트 페이지 생성', url:'orbit.app/translating', lane:'o', persp:['o','ORBIT 시스템'], scope:'MVP', hyp:['H2'], notes:[
+    ['1','<b>역할 번역(구체화) = ORBIT의 1차 가치.</b> 한 줄을 "필요한 역할 + 작업 요구"로, 도메인 무관.','PRD §3·§6②ⓐ'],
+    ['2','1분 대기 중 신뢰 유지가 관건 — <b>상태·소요시간 명시</b> + 실패·타임아웃 재시도 폴백(90초·자동 1회 = OI#5 제안).','PRD §6②ⓐ / OI#5 · 상단 상태 칩으로 실패 폴백 재현 가능']]},
+  W06:{nm:'① 구체화 결과 + 후보 미리보기 (1/3)', ia:'IA 1.0 › ①단계 · 결과 먼저', url:'orbit.app/project', lane:'d', persp:['d','수요자 · 김다솔'], scope:'MVP · 핵심', hyp:['H2','H3','H1수요'], isnew:true, notes:[
+    ['1','<span class="why">왜 후보를 구체화와 동시에:</span> "결과 먼저" — 구체화→후보 도달 <b>클릭 0회</b>, 데스크탑은 우측 패널 동시 노출(H3 확신 형성).','PRD §6②ⓑ·⑤'],
+    ['2','<span class="why">왜 %는 🔒마스킹:</span> 예비 3축은 <b>등록 신호만으로</b> 산출 — 공급자 답변 이전이라 정확 %는 확정 불가(순환참조 해소). 최종 %는 W-12 단 한 곳.','PRD §3·§6②ⓑ / 공통정책'],
+    ['3','팀 뱃지는 <b>"이번 역할 · 0/1"</b> — 채울 수 없는 3(0/3)을 약속하지 않음. 나머지 역할은 준비중 비활성.','PRD §6①'],
+    ['4','타깃 경계 게이트는 인라인 1줄·<b>통과 기본/이탈 선택</b>(하드블록 아님). 약점 표기로 오버셀링 방지. 후보 0명 빈 상태 = OI#7(안내 MVP·알림 분리).','H1수요 · PRD §6②·§9·§11 / OI#7']]},
+  W07:{nm:'② 후보 확정 (2/3)', ia:'IA 1.0 › ②단계', url:'orbit.app/select', lane:'d', persp:['d','수요자 · 김다솔'], scope:'MVP', hyp:['H3','H4'], notes:[
+    ['1','<b>마스킹·약점 표기 유지</b>한 채 1명 확정 — MVP = 1역할·1명 완주, 스텝당 단일 탭.','PRD §6②ⓑ·⑤'],
+    ['2','<span class="why">왜 "다른 후보 다시 보기"가 여기에:</span> 한 명과 안 맞아도 <b>이탈이 아니라 인플로우 재선택</b> — 거절 복귀 지점이기도 함(H4).','PRD §3·§6 / IA 1.0']]},
+  W08:{nm:'③ 매칭 3질문 + ORBIT 초대 (3/3)', ia:'IA 1.0 › ③단계', url:'orbit.app/invite', lane:'d', persp:['d','수요자 · 김다솔'], scope:'MVP', hyp:['H1','H3'], isnew:true, notes:[
+    ['1','<b>Q1·Q2 자동(계획서 분석)</b> — 초대 직전 확인용으로만 표시해 인지 부하를 뒤로 미룸.','PRD §3②·§6ⓒ'],
+    ['2','<span class="why">왜 Q3 접힘+가드레일:</span> 선택 항목·예시 힌트, 나이·성별 등 인구통계형 입력 시 <b>부드러운 안내(하드블록 아님)</b> — 공정성·법적 리스크 예방(OI#6 키워드 사전 방식).','PRD §6ⓒ / OI#6'],
+    ['3','발송 전 확인(M-02) 필수 · 수요→공급 단방향 제안 · <b>초대 유효기간 7일(OI#2 제안 반영)</b>.','PRD §3·§6ⓒ / OI#2']]},
+  M02:{nm:'[모달] 초대 발송 전 확인', ia:'IA 1.0 › 발송 전 확인', url:'orbit.app/invite', lane:'d', persp:['d','수요자 · 김다솔'], scope:'MVP', hyp:['H1'], notes:[
+    ['1','보낼 질문 3개와 받는 팀원을 발송 직전 확인 — 발송 후 회수·수정 정책은 OI#2 의사결정 대기.','PRD §6ⓒ / OI#2']]},
+  W09:{nm:'팀원 등록 · 인증 (4단계 · 최초 1회)', ia:'IA 2.0 › 등록 4단계 ⓐ~ⓓ', url:'orbit.app/register', lane:'s', persp:['s','공급자 · 신규 등록'], scope:'MVP', hyp:['H1공급'], isnew:true, notes:[
+    ['1','<b>실력 증명 = 운영자 검증(컨시어지)</b> — "검증 대기" 상태 명시로 공급 순도를 운영자가 보증. 이 데이터가 W-06 후보 카드의 원천.','PRD §6③④'],
+    ['2','<span class="why">왜 베팅 의향이 핵심:</span> 3축 중 베팅 축의 소스. "선보수 필요(생계형)" 선택 시 <b>부드러운 이탈 안내(자기선별)</b> — 공동창업급만 남김.','H1공급 · PRD §2·§3·§6③'],
+    ['3','<span class="why">왜 기본 미체크 → 능동 동의:</span> IP 귀속·NDA-lite는 <b>수요자 아이디어 보호의 핵심 방어선</b> + 법적 유효성. 미동의 시 검증 신청 비활성.','법무 · PRD §6③ⓓ']]},
+  W10:{nm:'받은 ORBIT 초대 (수신함 · 공급 메인)', ia:'IA 2.0·6.0 › 받은 초대', url:'orbit.app/inbox', lane:'s', persp:['s','공급자'], scope:'MVP', hyp:[], notes:[
+    ['1','<b>수신함이 공급자의 메인 동선</b> — 재방문 시 등록 없이 직행. 데스크탑은 리스트+프리뷰 2단.','PRD §6③ / IA 2.0·6.0'],
+    ['2','<span class="why">왜 능동 탐색은 준비중:</span> 합류 신청 자체가 Post라 둘러보기만 열면 액션 부재 → MVP 공급 동선은 "받은 초대(수동)"만.','PRD §6④'],
+    ['3','초대 도착 알림은 <b>이메일 1종 필수(OI#13 제안 반영)</b> — 도달률이 H1공급 측정에 직결.','화면정의서 OI#13']]},
+  W11:{nm:'매칭 3질문 답변 → 수락/거절', ia:'IA 3.0 › 답변·수락/거절', url:'orbit.app/respond', lane:'s', persp:['s','공급자'], scope:'MVP', hyp:['H3','H4'], isnew:true, notes:[
+    ['1','<span class="why">왜 답변이 필수 선행 데이터:</span> 공급자 답변이 있어야 <b>최종 3축을 산출</b> — W-06에서 %가 잠겨 있던 이유가 여기서 풀림.','PRD §3·§6③④'],
+    ['2','수락 결정 지점에 <b>지분·IP 안심 문구</b> — 검증된 인재의 이탈 불안(반증 포인트②)을 결정 직전에 완화.','PRD §6③④·§3(OoS)'],
+    ['3','거절 시 수요자는 W-07 재선택으로 복귀 · <b>거절 사유 1문항(비필수)은 OI#11 제안 반영</b> — 학습형 재매칭 데이터 선확보.','H4 / OI#11']]},
+  W12:{nm:'ORBIT 궁합 결과 (최종 3축)', ia:'IA 4.0 › 적합도 + 근거 · 양쪽', url:'orbit.app/match', lane:'j', persp:['j','양쪽 · 김다솔 × 팀원'], scope:'MVP', hyp:['H3'], notes:[
+    ['1','<span class="why">왜 여기가 유일한 점수 공개 지점:</span> 답변 기반 최종 산출(역할×도메인×베팅) — 예비 3축과 구분되는 단 하나의 확정 지점, <b>자물쇠가 여기서 풀림</b>.','PRD §3④·§6ⓒ / 공통정책'],
+    ['2','숫자만이 아니라 <b>"왜 맞는지" 근거 2~3줄</b>을 함께 — AI 추천 불신을 근거로 상쇄.','PRD §3④'],
+    ['3','상세 프로필은 <b>수락 후에만 상호 공개</b> — 별도 화면 없이 W-12 하단 통합(OI#9 제안 반영).','IA 결정 흐름 / OI#9']]},
+  W13:{nm:'합류 합의 (양쪽 동의) ★NSM', ia:'IA 4.0 › 합류 합의 · ORBIT 완료', url:'orbit.app/agreement', lane:'j', persp:['j','양쪽'], scope:'MVP', hyp:[], isnsm:true, notes:[
+    ['1','<b>역할·기여·보상(지분) 템플릿까지만</b> 제공 — 정산·등기·분쟁 조정 비관여(OoS), 실제 계약은 당사자.','PRD §3·§8'],
+    ['2','<b>양쪽 동의 = ORBIT의 끝점 = NSM +1</b> (MVP: 1역할 합의 = 팀 1개). 한쪽 동의 7일 만료·철회 불가는 OI#8 제안 반영.','NSM · PRD §7 / OI#8']]},
+  W14:{nm:'협업 채널 연결 · 책임 경계 고지', ia:'IA 4.0 › 슬랙 핸드오프', url:'orbit.app/handoff', lane:'j', persp:['j','양쪽'], scope:'MVP', hyp:[], notes:[
+    ['1','<b>슬랙 연결 = 플랫폼 밖 핸드오프</b> — MVP는 운영자 개설 채널(컨시어지), 개인정보 URL 노출 금지.','PRD §3(협업=플랫폼 밖)'],
+    ['2','<span class="why">왜 경계 명시:</span> ORBIT 책임은 합류 합의까지 — 이후 협업 실패가 NSM을 오염시키지 않게 함.','PRD §3(OoS)·한줄요약']]},
+  W15a:{nm:'대시보드', ia:'IA 6.0 › 내 활동 요약', url:'orbit.app/home', lane:'o', persp:['o','로그인 사용자 (데모: 양쪽 탭)'], scope:'MVP(필수)', hyp:[], notes:[
+    ['1','좌측 사이드바 내비 + 역할별 탭 공통 진입점 — 진행중/완료/대기 요약.','IA 6.0']]},
+  W15b:{nm:'[팀 만들기 탭] 내 프로젝트 · 모집 현황', ia:'IA 6.0 › 수요 탭', url:'orbit.app/home/projects', lane:'d', persp:['d','수요자 · 김다솔'], scope:'MVP(필수)', hyp:[], notes:[
+    ['1','내 프로젝트·역할 슬롯 상태·내가 초대한 팀원(단방향). 받은 합류 신청은 준비중(Post).','PRD §6ⓒ·§6④ / IA 6.0'],
+    ['2','"다음 아이디어 시작"은 <b>건강한 재방문(revisit_type=healthy)</b>으로 계측 — 실패 기반 재방문과 분리.','PRD §7 / 계측정의'],
+    ['3','동시 진행은 <b>수요자당 진행중 프로젝트 1개(OI#3 제안 반영)</b> — NSM 정의 안정화.','화면정의서 OI#3']]},
+  W15c:{nm:'[합류 탭] 받은 초대 · 상태', ia:'IA 6.0 › 공급 탭', url:'orbit.app/home/invites', lane:'s', persp:['s','공급자'], scope:'MVP(필수)', hyp:[], notes:[
+    ['1','받은 초대(메인)와 상태 추적(대기/수락/거절). 능동 신청은 준비중(Post).','PRD §6③④ / IA 6.0']]},
+  W15d:{nm:'프로필 · 인증', ia:'IA 6.0 › 프로필·인증', url:'orbit.app/profile', lane:'o', persp:['s','공급자 · 박준영'], scope:'MVP(필수)', hyp:['H1공급'], notes:[
+    ['1','간단/상세 공개 범위 · 베팅 의향 수정 시 매칭 재계산. <b>"성향 5축"은 제거됨</b>.','PRD §6③④ / IA 6.0'],
+    ['2','실력 인증 상태(검증 대기/승인/반려·재신청) — 승인/반려 처리용 운영 백오피스는 OI#1(P0) 의사결정 대기.','PRD §6④ / OI#1']]},
+  W15e:{nm:'알림 (수신함)', ia:'IA 6.0 › 알림', url:'orbit.app/notifications', lane:'o', persp:['o','로그인 사용자'], scope:'MVP(필수)', hyp:[], notes:[
+    ['1','초대·응답·합의 알림 수신함 — 외부 채널은 이메일 1종(OI#13 제안 반영).','IA 6.0 / OI#13']]}
+};
+
+var PHASES = [
+  ['0.0 진입 · 인증', [['W01','lo'],['W02','lo'],['M01','lo'],['W03','lo']]],
+  ['1.0 수요자 여정', [['W04','ld'],['W05','lo'],['W06','ld'],['W07','ld'],['W08','ld'],['M02','ld']]],
+  ['2.0 공급자 등록', [['W09','ls'],['W10','ls']]],
+  ['3.0 공급자 응답', [['W11','ls']]],
+  ['4.0 합류점', [['W12','lj'],['W13','lj'],['W14','lj']]],
+  ['6.0 공통', [['W15a','lo'],['W15b','ld'],['W15c','ls'],['W15d','lo'],['W15e','lo']]]
+];
+
+function $(id){return document.getElementById(id);}
+function sel(){return CANDS[S.selected||'pjy'];}
+function toast(msg){var t=$('toastBox'); t.textContent=msg; t.classList.add('show'); clearTimeout(t._tm); t._tm=setTimeout(function(){t.classList.remove('show');},2600);}
+
+/* ---------- 계측 ---------- */
+function ev(name, attr){
+  var m=EVMETA[name]||{h:[]};
+  S.evtCount++;
+  var log=$('evtLog');
+  if(S.evtCount===1) log.innerHTML='';
+  var row=document.createElement('div'); row.className='evt';
+  var hs=m.h.map(function(h){return '<span class="eh">'+h+'</span>';}).join(' ');
+  var now=new Date(); var ts=('0'+now.getHours()).slice(-2)+':'+('0'+now.getMinutes()).slice(-2)+':'+('0'+now.getSeconds()).slice(-2);
+  row.innerHTML='<span class="en">'+name+(attr?'('+attr+')':'')+'</span>'+hs+(m.star?'<span class="estar">★</span>':'')+'<span class="et">'+ts+'</span>';
+  log.insertBefore(row, log.firstChild);
+  while(log.children.length>40) log.removeChild(log.lastChild);
+}
+
+/* ---------- 라우터 ---------- */
+function go(id){
+  var view=null, secId=id;
+  if(/^W15/.test(id)){ view=id.slice(3)||'a'; secId='W15'; }
+  seedFor(id);
+  document.querySelectorAll('.scr').forEach(function(s){s.classList.remove('on');});
+  var secEl=$('sec-'+secId); if(secEl) secEl.classList.add('on');
+  S.cur=id; S.seen[id]=true;
+  var sp=SPEC[id]||SPEC.W01;
+  $('urlTxt').textContent=sp.url;
+  $('scrIdTag').textContent=idLabel(id);
+  var bf=$('browserFrame'); bf.className='browser lane-'+sp.lane;
+  var pc=$('perspChip'); pc.className='db-chip persp-'+sp.persp[0]; $('perspTxt').textContent='관점: '+sp.persp[1];
+  if(view){ S.curView=view; renderShell(view); }
+  updateSpec(id); renderStateChips(); renderMap();
+  if(id==='W09') wizGo('a');
+  if(id==='W05') runTranslate();
+  if(id==='W06') enterW06();
+  if(id==='W07') renderSelect();
+  if(id==='W08') enterW08();
+  if(id==='W10') renderInbox();
+  if(id==='W11') enterW11();
+  if(id==='W12') startReveal();
+  if(id==='W13') renderAgreement();
+  S._jump=false;
+  window.scrollTo({top:0});
+}
+function idLabel(id){
+  if(/^W15/.test(id)) return 'W-15'+(id.slice(3)||'a');
+  if(/^M/.test(id)) return 'M-'+id.slice(1);
+  return 'W-'+('0'+id.slice(1)).slice(-2);
+}
+
+/* 점프 시 선행 상태 시드 (화면 지도용) */
+function seedFor(id){
+  var demandScreens={W04:1,W05:1,W06:1,W07:1,W08:1};
+  if(demandScreens[id]&&!S.side){S.side='demand';}
+  if(id==='W09'||id==='W10'||id==='W11'){if(!S.side)S.side='supply';}
+  if((id==='W06'||id==='W07'||id==='W08')&&!S.idea){S.idea='동네 돌봄 사각지대를 잇는 복지 앱을 만들고 싶다';}
+  if((id==='W08')&&!S.selected){S.selected='pjy';}
+  if(id==='W10'&&S._jump&&!S.invite.status&&!S.w10empty){S.invite.status='sent'; if(!S.selected)S.selected='pjy';}
+  if(id==='W11'){if(!S.selected)S.selected='pjy'; if(!S.invite.status||S.invite.status==='sent')S.invite.status='opened';}
+  if(id==='W12'||id==='W13'||id==='W14'){if(!S.selected)S.selected='pjy'; if(S.invite.status!=='accepted')S.invite.status='accepted';}
+  if(id==='W14'){S.agree.demand=true; S.agree.supply=true; if(S.nsm<1){S.nsm=1; $('nsmNum').textContent=S.nsm;}}
+}
+
+/* ---------- 스펙 드로어 ---------- */
+function updateSpec(id){
+  var sp=SPEC[id]; if(!sp) return;
+  var chips='<span class="dw-chip dwc-mvp">'+sp.scope+'</span>';
+  (sp.hyp||[]).forEach(function(h){chips+='<span class="dw-chip dwc-h">'+h+'</span>';});
+  if(sp.isnew) chips+='<span class="dw-chip dwc-new">v2.1.1</span>';
+  if(sp.isnsm) chips+='<span class="dw-chip dwc-nsm">★ NSM</span>';
+  $('specCard').innerHTML='<b>'+idLabel(id)+' · '+sp.nm+'</b><br><span class="mono">'+sp.ia+'</span><br><span class="mono">URL(안) '+sp.url+'</span><div class="dw-chiprow">'+chips+'</div>';
+  var html='';
+  sp.notes.forEach(function(n){
+    html+='<div class="dw-note"><span class="n">'+n[0]+'</span><div>'+n[1]+'<span class="dw-ref">'+n[2]+'</span></div></div>';
+  });
+  $('specNotes').innerHTML=html;
+}
+
+/* ---------- 화면 지도 ---------- */
+function renderMap(){
+  var html='';
+  PHASES.forEach(function(p){
+    html+='<div class="md-phase">'+p[0]+'</div>';
+    p[1].forEach(function(it){
+      var id=it[0], sp=SPEC[id]||{nm:''};
+      var cur=(S.cur===id)?' cur':'';
+      html+='<button class="md-item'+cur+'" onclick="mapGo(\''+id+'\')"><span class="mid '+it[1]+'">'+idLabel(id)+'</span>'+sp.nm+'<span class="vis'+(S.seen[id]?' seen':'')+'"></span></button>';
+    });
+  });
+  $('mapBody').innerHTML=html;
+}
+function mapGo(id){
+  S._jump=true;
+  if(id==='M01'){ if(S.cur!=='W01') go('W01'); openModal('M01'); updateSpec('M01'); renderMap(); return; }
+  if(id==='M02'){ go('W08'); openModal('M02'); updateSpec('M02'); S.seen['M02']=true; renderMap(); return; }
+  go(id);
+}
+
+/* ---------- 상태 칩 (엣지 케이스 시연) ---------- */
+function renderStateChips(){
+  var box=$('stateChips'); var h='';
+  if(S.cur==='W05') h='<button class="st'+(S.w5fail?'':' on')+'" onclick="setW5(false)">성공 흐름</button><button class="st'+(S.w5fail?' on':'')+'" onclick="setW5(true)">실패 폴백</button>';
+  if(S.cur==='W06') h='<button class="st'+(S.w6empty?'':' on')+'" onclick="setW6(false)">후보 2명</button><button class="st'+(S.w6empty?' on':'')+'" onclick="setW6(true)">후보 0명 (빈 상태)</button>';
+  if(S.cur==='W10') h='<button class="st'+(S.w10empty?'':' on')+'" onclick="setW10(false)">초대 도착</button><button class="st'+(S.w10empty?' on':'')+'" onclick="setW10(true)">빈 상태</button>';
+  box.innerHTML=h;
+}
+function setW5(f){S.w5fail=f; renderStateChips(); runTranslate();}
+function setW6(f){S.w6empty=f; renderStateChips(); enterW06();}
+function setW10(f){S.w10empty=f; if(f){S.invite.status=null;}else if(!S.invite.status){S.invite.status='sent'; if(!S.selected)S.selected='pjy';} renderStateChips(); renderInbox();}
+
+/* ---------- W-02 ---------- */
+function initW02(){
+  $('emailToggle').addEventListener('click', function(){var f=$('emailFields'); f.style.display=(f.style.display==='none')?'block':'none';});
+  $('tosChk').addEventListener('change', function(){$('signupBtn').disabled=!this.checked;});
+}
+
+/* ---------- W-03 ---------- */
+function chooseSide(side){
+  S.side=side; ev('enter_side_selected','side='+(side==='demand'?'demand':'supply'));
+  if(side==='demand'){ go('W04'); }
+  else{ $('onboardBox').style.display='block'; $('onboardBox').scrollIntoView({behavior:'smooth',block:'center'}); }
+}
+
+/* ---------- W-04 ---------- */
+function initW04(){
+  var inp=$('ideaInput'), typed=false;
+  inp.addEventListener('input', function(){
+    if(!typed&&inp.value.length>0){typed=true; ev('idea_typed');}
+    $('ideaCount').textContent=inp.value.length;
+    $('ideaSubmit').disabled=inp.value.trim().length<10;
+  });
+  $('ideaExample').addEventListener('click', function(){
+    inp.value='동네 돌봄 사각지대를 잇는 복지 앱을 만들고 싶다';
+    inp.dispatchEvent(new Event('input'));
+  });
+}
+function submitIdea(){ S.idea=$('ideaInput').value.trim(); ev('idea_submitted'); go('W05'); }
+
+/* ---------- W-05 ---------- */
+var loadTimer=null;
+function runTranslate(){
+  clearInterval(loadTimer);
+  var fail=$('loadFail'), okBox=$('loadingBox');
+  if(S.w5fail){ okBox.style.display='none'; fail.style.display='flex'; ev('translate_fail'); return; }
+  fail.style.display='none'; okBox.style.display='flex';
+  var fillEl=$('loadBarFill'), stepEl=$('loadStepTxt'), p=0;
+  var steps=['계획서 뼈대를 세우는 중…','필요한 역할을 고르는 중…','검증 팀원 풀에서 후보를 추리는 중…'];
+  fillEl.style.width='0%';
+  loadTimer=setInterval(function(){
+    p+=8; fillEl.style.width=Math.min(p,100)+'%';
+    stepEl.textContent=steps[Math.min(Math.floor(p/40),2)];
+    if(p>=100){ clearInterval(loadTimer); ev('translate_success'); setTimeout(function(){ if(S.cur==='W05') go('W06'); },250); }
+  },200);
+}
+function retryTranslate(){ S.w5fail=false; renderStateChips(); runTranslate(); }
+
+/* ---------- W-06 ---------- */
+function candCardHTML(c, selectable){
+  var axes=c.axes.map(function(a){return '<span class="chip lv-'+a[1]+'">'+a[0]+'</span>';}).join('');
+  var selCls=(selectable&&S.selected===c.id)?' sel':'';
+  var open=selectable?'<button class="candcard'+selCls+'" style="width:100%; text-align:left; cursor:pointer;" onclick="pickCand(\''+c.id+'\')">':'<div class="candcard">';
+  var close=selectable?'</button>':'</div>';
+  return open+
+    '<div class="candhead"><span class="avatarc av-s">'+c.shortNm+'</span><span><span class="nm">'+c.nm+'</span><br><span class="rl">'+c.meta+'</span></span>'+
+    '<span class="right chip lockc">🔒 ??%<span class="locktip">정확한 점수는 초대에 답한 뒤에 열려요</span></span></div>'+
+    '<div class="axisrow">'+axes+'<span class="chip lv-lo">'+c.weak+'</span></div>'+
+    '<div class="whybox"><b>왜 맞는지 · </b>'+c.why+'</div>'+close;
+}
+function enterW06(){
+  var list=$('candList'), empty=$('candEmpty'), btn=$('acceptTranslateBtn');
+  if(S.w6empty){ list.style.display='none'; empty.style.display='block'; btn.disabled=true; }
+  else{
+    list.style.display='block'; empty.style.display='none'; btn.disabled=false;
+    list.innerHTML=candCardHTML(CANDS.pjy,false)+candCardHTML(CANDS.lsy,false);
+    ev('candidate_preview_view','후보 2');
+  }
+  $('regenCount').textContent=S.regen;
+  $('teamBadge').textContent='이번 역할(개발) · '+(S.nsm>0?'1/1':'0/1');
+}
+function setProjView(v){
+  $('tgMock').classList.toggle('on', v==='mock'); $('tgPlan').classList.toggle('on', v==='plan');
+  $('projMockView').style.display=(v==='mock')?'block':'none';
+  $('projPlanView').style.display=(v==='plan')?'block':'none';
+}
+function regen(){
+  if(S.regen>=3){ toast('오늘 재생성 한도(3회)에 닿았어요 — 내일 다시 시도할 수 있어요'); return; }
+  S.regen++; ev('regenerate_click', S.regen+'회'); go('W05');
+}
+function gateExit(){
+  ev('gate_exit');
+  toast('만들 방법이 이미 또렷하다면 외주(크몽 등)가 더 맞아요 — 안내 페이지로 이어져요 (프로토타입에선 여기까지)');
+}
+
+/* ---------- W-07 ---------- */
+function renderSelect(){
+  $('selCandA').innerHTML=candCardHTML(CANDS.pjy,true);
+  $('selCandB').innerHTML=candCardHTML(CANDS.lsy,true);
+  $('confirmCandBtn').disabled=!S.selected;
+  var rb=$('rejBanner');
+  if(S.invite.status==='rejected'){
+    rb.classList.add('show');
+    $('rejBannerTxt').textContent=sel().nm+' 님이 초대를 거절했어요'+(S.invite.reason?(' (사유: '+S.invite.reason+')'):'')+' — 처음부터가 아니라, 여기서 다른 후보를 다시 보면 돼요.';
+  } else rb.classList.remove('show');
+}
+function pickCand(id){ S.selected=id; renderSelect(); }
+function confirmCandidate(){ ev('candidate_selected', sel().nm); S.invite.status=null; S.invite.reason=''; go('W08'); }
+
+/* ---------- W-08 ---------- */
+function enterW08(){
+  if(!S.selected)S.selected='pjy';
+  $('invTargetName').textContent=sel().nm;
+}
+function toggleQ3(){ $('q3Fold').classList.toggle('open'); }
+function initQ3Guard(){
+  var kw=['나이','살이','연령','성별','남자','여자','결혼','기혼','미혼','종교','출신','학벌','학력'];
+  $('q3Input').addEventListener('input', function(){
+    S.q3=this.value.trim();
+    var hit=kw.some(function(k){return S.q3.indexOf(k)>-1;});
+    $('q3Guard').style.display=hit?'flex':'none';
+  });
+}
+function openModal(mid){
+  if(mid==='M02'){
+    $('m02Name').textContent=sel().nm;
+    var q3=$('m02q3');
+    if(S.q3){ q3.style.display='block'; $('m02q3Txt').textContent=S.q3; }
+    else q3.style.display='none';
+  }
+  $('modal-'+mid).classList.add('show');
+}
+function closeModal(mid){ $('modal-'+mid).classList.remove('show'); }
+function sendInvite(){
+  ev('invite_sent', S.q3?'Q3 작성':'Q3 없음');
+  S.invite.status='sent';
+  closeModal('M02');
+  addNoti('📨','새 ORBIT 초대가 도착했어요 — 이음 · 개발 · '+sel().nm+' 님에게', true);
+  showBand('데모 · 관점 전환 — 이제부터 공급자 '+sel().nm+' 님의 화면이에요');
+  go('W10');
+}
+
+/* ---------- W-10 ---------- */
+function renderInbox(){
+  var list=$('inviteList'), empty=$('inboxEmpty'), prev=$('invitePreview');
+  var st=S.invite.status;
+  if(!st){ list.innerHTML=''; empty.style.display='block'; prev.innerHTML='<div class="seclabel" style="margin-top:0">초대 미리보기</div><p style="font-size:12.5px; color:var(--slate2); margin:0;">왼쪽에서 초대를 고르면 프로젝트 요약이 보여요.</p>'; return; }
+  empty.style.display='none';
+  var badge= st==='accepted'?'<span class="chip state-ok">수락</span>' : st==='rejected'?'<span class="chip state-no">거절</span>':'<span class="chip state-wait">대기</span>';
+  list.innerHTML='<div class="invitem sel"><span class="avatarc av-d sm">다솔</span><span><span class="it">이음 — 동네 돌봄을 잇다</span><br><span class="is">개발 · 보낸 사람 김다솔 · 남은 유효기간 7일</span></span><span style="margin-left:auto">'+badge+'</span></div>';
+  prev.innerHTML='<div class="seclabel" style="margin-top:0">초대 미리보기</div>'+
+    '<b style="font-size:14px;">이음 — 동네 돌봄을 잇다</b>'+
+    '<p style="font-size:12.5px; color:var(--slate); margin:6px 0 10px;">복지관과 이웃 사이, 비어 있는 돌봄을 연결하는 동네 복지 서비스 · 필요 역할: <b>개발</b></p>'+
+    '<p style="font-size:12px; color:var(--slate2); margin:0 0 14px;">보낸 사람 김다솔 · 15년 차 사회복지사 — 입찰도 단가 경쟁도 없이, 나에게 맞게 정리된 진짜 아이디어예요.</p>'+
+    (st==='sent'?'<button class="btn btn-s" onclick="ev(\'invite_opened\'); S.invite.status=\'opened\'; go(\'W11\')">초대 열기</button>':'<button class="btn btn-gh" onclick="go(\'W11\')">응답 화면 보기</button>');
+}
+
+/* ---------- W-11 ---------- */
+function enterW11(){
+  if(S.q3){ $('q3AnsCard').style.display='block'; $('q3AnsTxt').textContent=S.q3; }
+  else { $('q3AnsCard').style.display='none'; }
+  checkAnswers();
+}
+function checkAnswers(){
+  var ok=true;
+  document.querySelectorAll('#sec-W11 .ansInp').forEach(function(t){ if(t.closest('.qcard').style.display!=='none' && t.value.trim().length<2) ok=false; });
+  $('acceptBtn').disabled=!ok;
+}
+function fillSampleAnswers(){
+  var samples=['직접 연계 경험은 없어요. 구청 공공데이터로 시작하고, 첫 복지관 한 곳을 파트너로 좁혀 접점을 만들게요.','돌봄 요청 등록 하나만 남기고, 지도는 정적 화면으로 시작할게요. 알림은 초반엔 수동 운영으로 대체해요.','네. 본업이 있어 당장의 보수보다, 제 지분이 남는 판인지가 더 중요해요.'];
+  var i=0; document.querySelectorAll('#sec-W11 .ansInp').forEach(function(t){ t.value=samples[i++]||samples[2]; });
+  checkAnswers();
+}
+function acceptInvite(){
+  ev('respond_accept'); S.invite.status='accepted';
+  addNoti('✅', sel().nm+' 님이 초대를 수락했어요 — 궁합 결과가 열렸어요', true);
+  showBand('데모 · 여기부터는 양쪽(김다솔 × '+sel().nm+')에게 같은 화면이 보여요');
+  go('W12');
+}
+function openRejectBox(){ var b=$('rejectBox'); b.style.display=(b.style.display==='none')?'block':'none'; }
+function rejectInvite(){
+  var r=$('rejectReason').value;
+  ev('respond_reject', r?('사유: '+r):'사유 없음');
+  S.invite.status='rejected'; S.invite.reason=r;
+  addNoti('↩', sel().nm+' 님이 초대를 거절했어요 — 다른 후보를 다시 볼 수 있어요', true);
+  showBand('데모 · 관점 전환 — 수요자 김다솔의 화면으로 돌아왔어요 (재선택 복귀)');
+  go('W07');
+}
+
+/* ---------- W-12 ---------- */
+function startReveal(){
+  ev('match_result_view', sel().fin.join('·'));
+  var lock=$('lockIcon'); lock.textContent='🔒'; lock.classList.remove('open');
+  $('revealChip').style.visibility='hidden';
+  var fins=sel().fin;
+  document.querySelector('#sec-W12 .whyfinal p').innerHTML=sel().finWhy;
+  var right=document.querySelectorAll('#sec-W12 .profcard')[1];
+  right.querySelector('.pn').textContent=sel().nm;
+  right.querySelector('.pr').textContent=sel().meta.split('·').slice(0,2).join('·').trim()+' · 공급';
+  right.querySelector('.avatarc').textContent=sel().shortNm;
+  right.querySelector('ul').innerHTML='<li>'+sel().prof[0]+'</li><li>'+sel().prof[1]+'</li>';
+  setTimeout(function(){ lock.textContent='🔓'; lock.classList.add('open'); $('revealChip').style.visibility='visible'; },500);
+  (window._gTimers||[]).forEach(clearInterval); window._gTimers=[];
+  ['g1','g2','g3'].forEach(function(gid,i){
+    var g=$(gid), n=$('n'+(i+1)), target=fins[i], v=0;
+    var tm=setInterval(function(){
+      v+=2; if(v>=target){v=target; clearInterval(tm);}
+      g.style.setProperty('--p', v); n.textContent=v;
+    },18);
+    window._gTimers.push(tm);
+  });
+}
+
+/* ---------- W-13 ---------- */
+function renderAgreement(){
+  var sd=$('signDemand'), ss=$('signSupply');
+  ss.querySelector('.todo').textContent='공급자 동의 — '+sel().nm;
+  ss.querySelector('.done').textContent='✓ '+sel().nm+' 동의함';
+  sd.classList.toggle('signed', S.agree.demand); ss.classList.toggle('signed', S.agree.supply);
+  var both=S.agree.demand&&S.agree.supply;
+  $('nsmBand').classList.toggle('show', both);
+  $('toHandoffBtn').style.display=both?'inline-flex':'none';
+  $('signWait').style.display=both?'none':'block';
+}
+function sign(side){
+  if(S.agree[side]) return;
+  S.agree[side]=true; ev('agreement_signed','side='+side);
+  var both=S.agree.demand&&S.agree.supply;
+  if(both){
+    ev('agreement_both_signed','이음 · 개발 1/1');
+    S.nsm++; $('nsmNum').textContent=S.nsm;
+    var chip=$('nsmChip'); chip.classList.remove('tick'); void chip.offsetWidth; chip.classList.add('tick');
+    addNoti('★','합류 합의 성사 — 이음 · 개발 1/1 · ORBIT 완료', true);
+    toast('★ ORBIT 완료 — 주간 합류 합의 수 +1');
+  } else {
+    $('signWait').textContent='상대 동의 대기 중이에요 · 7일이 지나면 만료돼요 · 동의 후엔 철회할 수 없어요';
+    toast('한쪽 동의 완료 — 상대 동의를 기다려요');
+  }
+  renderAgreement();
+}
+
+/* ---------- W-15 셸 ---------- */
+function renderShell(view){
+  document.querySelectorAll('.w15view').forEach(function(v){v.style.display='none';});
+  $('v15'+view).style.display='block';
+  document.querySelectorAll('.snav[data-view]').forEach(function(b){b.classList.toggle('on', b.getAttribute('data-view')===view);});
+  var done=S.nsm>0?1:0;
+  var wait=(S.invite.status==='sent'||S.invite.status==='opened')?1:0;
+  var prog=(S.idea&&!done)?1:0;
+  $('sumProg').textContent=prog; $('sumDone').textContent=done; $('sumWait').textContent=wait;
+  var st=S.invite.status;
+  var projStatus= done?'합의완료':(st?'진행중':'모집중');
+  var projBadge= done?'이번 역할(개발) · 1/1':'이번 역할(개발) · 0/1';
+  $('myProjectList').innerHTML= S.idea?
+    '<div class="listrow"><span class="avatarc av-d sm">이음</span><span><span class="lt">이음 — 동네 돌봄을 잇다</span><br><span class="ls">'+projStatus+' · 한 줄: "'+S.idea+'"</span></span><span class="lr"><span class="chip rolebadge">'+projBadge+'</span><button class="btn btn-gh xs" onclick="go(\'W06\')">열기</button></span></div>'
+    :'<div class="card ghosty">아직 만든 프로젝트가 없어요 — 한 줄이면 시작돼요 <button class="btn btn-soft-d xs" style="margin-left:8px" onclick="go(\'W04\')">시작하기</button></div>';
+  var invBadge= st==='accepted'||done?'<span class="chip state-ok">수락</span>' : st==='rejected'?'<span class="chip state-no">거절</span>' : st?'<span class="chip state-wait">대기</span>':'';
+  $('myInviteList').innerHTML= st?
+    '<div class="listrow"><span class="avatarc av-s sm">'+sel().shortNm+'</span><span><span class="lt">'+sel().nm+'</span><br><span class="ls">개발 · 이음 · 초대 '+(st==='sent'?'발송됨':st==='opened'?'열람됨':st==='accepted'?'수락됨':'거절됨')+'</span></span><span class="lr">'+invBadge+'</span></div>'
+    :'<div class="card ghosty">아직 보낸 초대가 없어요</div>';
+  $('nextIdeaBtn').style.display= done?'inline-flex':'none';
+  $('supInviteList').innerHTML= st?
+    '<div class="listrow"><span class="avatarc av-d sm">다솔</span><span><span class="lt">이음 — 동네 돌봄을 잇다</span><br><span class="ls">개발 · 보낸 사람 김다솔</span></span><span class="lr">'+(invBadge||'<span class="chip state-wait">대기</span>')+'<button class="btn btn-gh xs" onclick="go(\'W10\')">수신함</button></span></div>'
+    :'<div class="card ghosty">아직 받은 초대가 없어요 — 초대가 오면 이메일로도 알려드려요</div>';
+  renderNotis();
+  if(view==='e'){ S.unread=0; }
+  var nd=$('notiDot'); nd.style.display=S.unread>0?'inline-block':'none'; nd.textContent=S.unread;
+}
+function addNoti(icon, txt, mail){
+  S.notis.unshift({icon:icon, txt:txt, mail:!!mail, ts:new Date()});
+  S.unread++;
+}
+function renderNotis(){
+  var box=$('notiList');
+  if(!S.notis.length){ box.innerHTML='<div class="card ghosty">아직 알림이 없어요 — 초대·응답·합의 소식이 여기 모여요</div>'; return; }
+  box.innerHTML=S.notis.map(function(n){
+    var t=('0'+n.ts.getHours()).slice(-2)+':'+('0'+n.ts.getMinutes()).slice(-2);
+    return '<div class="notirow"><span class="ni">'+n.icon+'</span><span><span class="nt">'+n.txt+(n.mail?'<span class="mailtag">이메일 발송됨</span>':'')+'</span><br><span class="nd">오늘 '+t+'</span></span></div>';
+  }).join('');
+}
+function nextIdea(){
+  ev('revisit_type','healthy');
+  S.idea=''; S.selected=null; S.q3=''; S.invite={status:null, reason:''}; S.agree={demand:false,supply:false}; S.regen=0;
+  $('ideaInput').value=''; $('ideaCount').textContent='0'; $('ideaSubmit').disabled=true;
+  document.querySelectorAll('#sec-W11 .ansInp').forEach(function(t){t.value='';});
+  toast('건강한 재방문 — 다음 아이디어로 새 ORBIT을 시작해요');
+  go('W04');
+}
+
+/* ---------- W-09 위저드 ---------- */
+function startRegister(){
+  $('regRole').value=$('obRole').value;
+  $('regInterest').value=$('obInterest').value;
+  go('W09');
+}
+function wizGo(step){
+  ['a','b','c','d'].forEach(function(s){ $('wp-'+s).style.display=(s===step)?'block':'none'; });
+  var order=['a','b','c','d'], idx=order.indexOf(step);
+  document.querySelectorAll('#wizSteps .wst').forEach(function(el,i){
+    el.classList.toggle('on', i===idx); el.classList.toggle('done', i<idx);
+  });
+}
+function setBet(v){
+  $('betOptA').classList.toggle('checked', v==='equity');
+  $('betOptB').classList.toggle('checked', v==='paid');
+  $('betSelfNote').style.display=(v==='paid')?'flex':'none';
+  if(v==='paid') ev('self_select_exit','안내 노출');
+  $('betNextBtn').disabled=false;
+}
+function checkRegAgree(){ $('regDoneBtn').disabled=!($('ndaChk').checked&&$('privChk').checked); }
+function finishRegister(){
+  ev('supplier_register_complete');
+  toast('검증 신청 완료 — 운영자 확인 후 후보로 소개돼요 (검증 대기)');
+  go('W10');
+}
+
+/* ---------- 데모 셸 공통 ---------- */
+function showBand(txt){
+  var b=$('perspBand'); $('perspBandTxt').textContent=txt;
+  b.classList.add('show'); clearTimeout(b._tm); b._tm=setTimeout(function(){b.classList.remove('show');},3800);
+}
+function initShellCtrls(){
+  $('btnMap').addEventListener('click', function(){ var d=$('mapDrawer'); d.classList.toggle('open'); this.classList.toggle('on', d.classList.contains('open')); if(d.classList.contains('open')){$('specDrawer').classList.remove('open'); $('btnSpec').classList.remove('on');} });
+  $('btnSpec').addEventListener('click', function(){ var d=$('specDrawer'); d.classList.toggle('open'); this.classList.toggle('on', d.classList.contains('open')); if(d.classList.contains('open')){$('mapDrawer').classList.remove('open'); $('btnMap').classList.remove('on');} });
+  $('btnReset').addEventListener('click', function(){ location.reload(); });
+  document.addEventListener('keydown', function(e){
+    if(e.key==='Escape'){
+      document.querySelectorAll('.modalveil.show').forEach(function(m){m.classList.remove('show');});
+      $('mapDrawer').classList.remove('open'); $('specDrawer').classList.remove('open');
+      $('btnMap').classList.remove('on'); $('btnSpec').classList.remove('on');
+    }
+  });
+  document.querySelectorAll('.modalveil').forEach(function(m){
+    m.addEventListener('click', function(e){ if(e.target===m) m.classList.remove('show'); });
+  });
+  document.querySelectorAll('#sec-W11 .ansInp').forEach(function(t){ t.addEventListener('input', checkAnswers); });
+}
+
+/* ---------- 초기화 ---------- */
+initW02(); initW04(); initQ3Guard(); initShellCtrls();
+renderMap(); updateSpec('W01'); renderStateChips();
+</script>
+</body>
+</html>

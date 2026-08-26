@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ORBIT 유저플로우 v1.1</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
+<style>
+  :root{
+    --navy:#0F172A; --navy-2:#1E293B; --slate:#475569; --slate-2:#94A3B8;
+    --demand:#2563EB; --demand-bg:#EFF5FF; --demand-line:#BFD3FF;
+    --supply:#0E7C86; --supply-bg:#E6F5F6; --supply-line:#A9DCE0;
+    --orbit:#4338CA; --orbit-bg:#EEF0FC; --orbit-line:#C7CBF3;
+    --green:#15803D; --green-bg:#E9F7EF; --green-line:#A7E0BE;
+    --mvp:#7C3AED; --mvp-bg:#F3ECFF;
+    --gate:#B45309; --gate-bg:#FEF3E2; --gate-line:#F3D19B;
+    --post:#64748B; --post-bg:#F1F5F9;
+    --new:#CA8A04; --new-bg:#FEFCE8;
+    --paper:#FBFBFD; --ink:#0F172A; --line:#E2E8F0;
+    --sky:#F5F8FF;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{
+    margin:0; background:var(--sky); color:var(--ink);
+    font-family:"Pretendard",system-ui,-apple-system,sans-serif;
+    line-height:1.5; letter-spacing:-0.01em;
+    padding:32px 20px 80px;
+  }
+  .wrap{max-width:1120px; margin:0 auto;}
+
+  /* ---------- header ---------- */
+  header.masthead{
+    background:linear-gradient(135deg,var(--navy) 0%,#20306b 60%,var(--orbit) 130%);
+    color:#fff; border-radius:20px; padding:30px 34px;
+    box-shadow:0 18px 44px -22px rgba(15,23,42,.55);
+    position:relative; overflow:hidden;
+  }
+  header.masthead::after{
+    content:""; position:absolute; right:-70px; top:-70px; width:230px; height:230px;
+    border:1.5px solid rgba(255,255,255,.14); border-radius:50%;
+    box-shadow:0 0 0 26px rgba(255,255,255,.05);
+  }
+  .eyebrow{font-size:12.5px; letter-spacing:.16em; color:#A9B6E8; font-weight:600; text-transform:uppercase;}
+  h1{margin:8px 0 4px; font-size:30px; font-weight:800; letter-spacing:-0.02em;}
+  h1 .ver{font-size:15px; font-weight:600; color:#C7D0F5; margin-left:8px; vertical-align:middle;}
+  .subtitle{font-size:14.5px; color:#DCE2F7; max-width:640px; margin:0;}
+  .meta-row{display:flex; flex-wrap:wrap; gap:10px 22px; margin-top:16px; font-size:12.5px; color:#B9C3EC;}
+  .meta-row b{color:#fff; font-weight:600;}
+
+  /* ---------- legend ---------- */
+  .legend{
+    display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    gap:12px; margin:20px 0 26px;
+  }
+  .legend-card{
+    background:#fff; border:1px solid var(--line); border-radius:14px; padding:13px 15px;
+  }
+  .legend-card h4{margin:0 0 9px; font-size:12px; letter-spacing:.04em; color:var(--slate); font-weight:700;}
+  .legend-card ul{margin:0; padding:0; list-style:none; display:flex; flex-direction:column; gap:6px;}
+  .legend-card li{display:flex; align-items:center; gap:8px; font-size:12.5px; color:var(--navy-2);}
+  .sw{width:15px; height:15px; border-radius:4px; flex:none; border:1px solid rgba(0,0,0,.06);}
+  .pill{font-size:11px; font-weight:700; padding:2px 8px; border-radius:999px; flex:none;}
+
+  /* ---------- swimlane header ---------- */
+  .lanes{
+    position:sticky; top:0; z-index:20; display:grid; grid-template-columns:1fr 1fr 1fr;
+    gap:14px; padding:10px 0; margin-bottom:4px; background:linear-gradient(var(--sky) 70%,rgba(245,248,255,0));
+  }
+  .lane-h{
+    text-align:center; font-weight:800; font-size:14px; padding:9px 10px; border-radius:11px; color:#fff;
+  }
+  .lane-h.d{background:var(--demand);}
+  .lane-h.o{background:var(--orbit);}
+  .lane-h.s{background:var(--supply);}
+  .lane-h small{display:block; font-weight:500; font-size:11px; opacity:.85; margin-top:1px;}
+
+  /* ---------- flow spine ---------- */
+  .flow{position:relative;}
+  .flow::before{
+    content:""; position:absolute; left:50%; top:0; bottom:26px; width:2px;
+    background:repeating-linear-gradient(var(--slate-2) 0 7px,transparent 7px 14px);
+    transform:translateX(-50%); z-index:0;
+  }
+
+  /* phase band */
+  .phase{
+    position:relative; z-index:2; margin:26px 0 14px; display:flex; align-items:center; gap:14px;
+  }
+  .phase .no{
+    font-size:13px; font-weight:800; color:#fff; background:var(--navy); border-radius:9px;
+    padding:6px 12px; letter-spacing:.02em; flex:none; box-shadow:0 6px 14px -8px rgba(15,23,42,.6);
+  }
+  .phase .nm{font-size:16px; font-weight:800; color:var(--navy);}
+  .phase .hint{font-size:12.5px; color:var(--slate); margin-left:2px;}
+  .phase::before,.phase::after{content:""; height:1px; background:var(--line); flex:1;}
+  .phase::before{max-width:0;}
+
+  /* row = 3 lane slots */
+  .row{position:relative; z-index:2; display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px; align-items:stretch;}
+  .slot{display:flex;}
+  .slot.d{justify-content:flex-start;}
+  .slot.o{justify-content:center;}
+  .slot.s{justify-content:flex-end;}
+
+  /* node card */
+  .node{
+    background:#fff; border:1px solid var(--line); border-left-width:4px; border-radius:13px;
+    padding:12px 14px; width:100%; box-shadow:0 4px 14px -10px rgba(15,23,42,.35);
+    position:relative;
+  }
+  .node.d{border-left-color:var(--demand);}
+  .node.o{border-left-color:var(--orbit);}
+  .node.s{border-left-color:var(--supply);}
+  .node.j{border-left-color:var(--green);}
+  .node-head{display:flex; flex-wrap:wrap; align-items:center; gap:6px; margin-bottom:6px;}
+  .step{
+    font-size:11px; font-weight:800; color:var(--navy); background:#EEF2F9;
+    border-radius:6px; padding:2px 7px; letter-spacing:.02em; flex:none;
+  }
+  .node.d .step{color:var(--demand); background:var(--demand-bg);}
+  .node.o .step{color:var(--orbit); background:var(--orbit-bg);}
+  .node.s .step{color:var(--supply); background:var(--supply-bg);}
+  .node.j .step{color:var(--green); background:var(--green-bg);}
+  .node-title{font-size:14.5px; font-weight:700; color:var(--navy); margin:1px 0 4px; line-height:1.35;}
+  .node-desc{font-size:12.5px; color:var(--slate); margin:0 0 6px;}
+  .node-desc b{color:var(--navy-2); font-weight:600;}
+  .node-why{
+    font-size:12px; color:var(--navy-2); background:var(--paper); border:1px dashed var(--line);
+    border-radius:8px; padding:6px 9px; margin:6px 0 6px;
+  }
+  .node-why b{color:var(--orbit);}
+  .node.d .node-why b{color:var(--demand);}
+  .node.s .node-why b{color:var(--supply);}
+  .node-ref{font-size:10.5px; color:var(--slate-2); letter-spacing:.01em; margin-top:5px;}
+
+  /* chips / tags */
+  .brand{font-size:10.5px; font-weight:700; padding:2px 7px; border-radius:999px; flex:none;
+    background:#fff; border:1px solid currentColor;}
+  .node.d .brand{color:var(--demand);}
+  .node.o .brand{color:var(--orbit);}
+  .node.s .brand{color:var(--supply);}
+  .node.j .brand{color:var(--green);}
+  .tag{font-size:10px; font-weight:800; padding:2px 6px; border-radius:5px; flex:none; letter-spacing:.01em;}
+  .t-mvp{color:var(--mvp); background:var(--mvp-bg);}
+  .t-post{color:var(--post); background:var(--post-bg);}
+  .t-new{color:var(--new); background:var(--new-bg); border:1px solid #F5E8B0;}
+  .t-h{color:#B91C1C; background:#FEECEC;}
+  .t-nsm{color:#fff; background:var(--green);}
+  .node.post{opacity:.86; border-style:dashed;}
+  .node.post .node-title{color:var(--slate);}
+
+  /* connector arrow within lane */
+  .conn{position:relative; z-index:2; display:grid; grid-template-columns:1fr 1fr 1fr; height:26px;}
+  .conn i{align-self:center; justify-self:center; color:var(--slate-2); font-style:normal; font-size:15px; line-height:1;}
+  .conn .d{grid-column:1;} .conn .o{grid-column:2;} .conn .s{grid-column:3;}
+
+  /* full-width bars */
+  .bar{
+    position:relative; z-index:2; margin:12px 0; border-radius:12px; padding:11px 16px;
+    display:flex; align-items:center; gap:12px; font-size:13px; font-weight:600;
+  }
+  .bar .ico{font-size:15px; flex:none;}
+  .bar.handoff{background:linear-gradient(90deg,var(--demand-bg),var(--supply-bg)); border:1px solid #CFE0F0; color:var(--navy);}
+  .bar.loop{background:#fff; border:1.5px dashed var(--slate-2); color:var(--slate);}
+  .bar.loop b{color:var(--demand);}
+  .bar.gate{background:var(--gate-bg); border:1px solid var(--gate-line); color:var(--gate);}
+  .bar.decision{
+    background:#fff; border:1.5px solid var(--navy); color:var(--navy);
+    justify-content:center; text-align:center; font-weight:800;
+  }
+  .bar.decision .opt{font-weight:600; font-size:12.5px; color:var(--slate); margin-left:4px;}
+  .bar small{font-weight:500; color:var(--slate); font-size:12px;}
+
+  /* NSM endpoint */
+  .nsm{
+    position:relative; z-index:2; margin:16px 0 6px; background:linear-gradient(135deg,var(--green) 0%,#0E7C86 120%);
+    color:#fff; border-radius:16px; padding:18px 22px; text-align:center;
+    box-shadow:0 16px 34px -18px rgba(21,128,61,.6);
+  }
+  .nsm .star{font-size:13px; letter-spacing:.14em; font-weight:700; opacity:.9;}
+  .nsm .big{font-size:20px; font-weight:800; margin:5px 0 3px;}
+  .nsm .sub{font-size:12.5px; opacity:.92;}
+
+  /* phase note (post / common) */
+  .note{
+    position:relative; z-index:2; background:#fff; border:1px solid var(--line); border-radius:13px;
+    padding:14px 16px; margin-top:4px;
+  }
+  .note-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:10px;}
+  .mini{border:1px solid var(--line); border-left:3px solid var(--post); border-radius:9px; padding:9px 11px; background:var(--paper);}
+  .mini .mt{font-size:12.5px; font-weight:700; color:var(--navy-2);}
+  .mini .md{font-size:11.5px; color:var(--slate); margin-top:3px;}
+  .mini.d{border-left-color:var(--demand);}
+  .mini.s{border-left-color:var(--supply);}
+
+  footer{margin-top:34px; padding-top:16px; border-top:1px solid var(--line); font-size:11.5px; color:var(--slate-2); text-align:center;}
+
+  @media (max-width:820px){
+    .lanes,.row,.conn{grid-template-columns:1fr;}
+    .flow::before{display:none;}
+    .slot.d,.slot.o,.slot.s{justify-content:stretch;}
+    .lane-h{display:none;}
+    .node{border-left-width:5px;}
+    .conn{height:16px;} .conn i{grid-column:1 !important;}
+    .lane-tag{display:inline-block;}
+  }
+  .lane-tag{display:none; font-size:10px; font-weight:800; padding:2px 6px; border-radius:5px; margin-right:4px;}
+  .node.d .lane-tag{color:var(--demand); background:var(--demand-bg);}
+  .node.o .lane-tag{color:var(--orbit); background:var(--orbit-bg);}
+  .node.s .lane-tag{color:var(--supply); background:var(--supply-bg);}
+  .node.j .lane-tag{color:var(--green); background:var(--green-bg);}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="masthead">
+    <div class="eyebrow">ORBIT · User Flow</div>
+    <h1>ORBIT 유저플로우<span class="ver">v1.1</span></h1>
+    <p class="subtitle">한 줄 아이디어를 <b style="color:#fff">필요한 역할로 구체화(번역)</b>하고, 지분·성과를 나눌 공동창업급 팀원으로 잇는다 — 팀 구성(합류 합의)까지가 ORBIT의 책임 경계.</p>
+    <div class="meta-row">
+      <span>기준 문서 · <b>PRD v2.1.1 · IA v2.1.1</b></span>
+      <span>구조 · <b>양면 스윔레인 (수요 / ORBIT / 공급)</b></span>
+      <span>수요 흐름 · <b>결과-먼저 하이브리드 3단계</b></span>
+      <span>NSM · <b>주간 합류 합의 수</b></span>
+    </div>
+  </header>
+
+  <!-- LEGEND -->
+  <section class="legend">
+    <div class="legend-card">
+      <h4>레인 (LANE)</h4>
+      <ul>
+        <li><span class="sw" style="background:var(--demand)"></span>수요자 — 아이디어 → 팀 만들기</li>
+        <li><span class="sw" style="background:var(--orbit)"></span>ORBIT 시스템 — 번역·매칭·산출</li>
+        <li><span class="sw" style="background:var(--supply)"></span>공급자 — 검증 팀원 (등록·응답)</li>
+        <li><span class="sw" style="background:var(--green)"></span>합류점 — 양쪽 성사</li>
+      </ul>
+    </div>
+    <div class="legend-card">
+      <h4>스코프 · 가설</h4>
+      <ul>
+        <li><span class="pill t-mvp">MVP</span>검증 최소 범위 (구현)</li>
+        <li><span class="pill t-post">Post</span>후순위 (보류)</li>
+        <li><span class="pill t-new">v2.1.1</span>이번 버전 신규/변경</li>
+        <li><span class="pill t-h">H1~H6</span>검증 가설 앵커</li>
+      </ul>
+    </div>
+    <div class="legend-card">
+      <h4>흐름 기호</h4>
+      <ul>
+        <li><span class="pill" style="background:#fff;border:1.5px solid var(--navy);color:var(--navy)">◇ 분기</span>수락/거절·진입 side</li>
+        <li><span class="pill" style="background:var(--gate-bg);color:var(--gate)">⛬ 게이트</span>자기선별 (하드블록 아님)</li>
+        <li><span class="pill" style="background:#fff;border:1.5px dashed var(--slate-2);color:var(--slate)">↩ 루프</span>재시도·재선택</li>
+        <li><span class="pill t-nsm">★ NSM</span>ORBIT의 끝점 (+1)</li>
+      </ul>
+    </div>
+    <div class="legend-card">
+      <h4>브랜드 언어</h4>
+      <ul>
+        <li><span class="brand" style="color:var(--demand)">ORBIT 시작</span>프로젝트 생성</li>
+        <li><span class="brand" style="color:var(--orbit)">ORBIT 중…</span>아이디어 분석</li>
+        <li><span class="brand" style="color:var(--demand)">ORBIT 초대</span>팀원 제안</li>
+        <li><span class="brand" style="color:var(--green)">ORBIT 완료</span>합류 합의</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- STICKY LANE HEADERS -->
+  <div class="lanes">
+    <div class="lane-h d">수요자 <small>아이디어 → 팀</small></div>
+    <div class="lane-h o">ORBIT 시스템 <small>번역 · 매칭 · 산출</small></div>
+    <div class="lane-h s">공급자 <small>검증 팀원</small></div>
+  </div>
+
+  <!-- ================= FLOW ================= -->
+  <div class="flow">
+
+    <!-- PHASE 0.0 -->
+    <div class="phase"><span class="no">0.0</span><span class="nm">진입 · 인증</span><span class="hint">소개=비로그인 · 서비스 진입(분기)부터 로그인 · 게이팅=모달</span></div>
+
+    <div class="row">
+      <div class="slot o" style="grid-column:1 / span 3; justify-content:center;">
+        <div class="node o" style="max-width:70%;">
+          <div class="node-head"><span class="lane-tag">ORBIT</span><span class="step">0.0 랜딩</span><span class="tag t-mvp">MVP</span></div>
+          <div class="node-title">서비스 소개 · 회원가입 CTA</div>
+          <div class="node-desc"><b>ORBIT이란?</b> · <b>작동 방식(3단계 시각화)</b> · 회원가입 CTA. <b>현황 지표·이용 사례는 숨김(Post)</b>.</div>
+          <div class="node-why"><b>왜:</b> 초기 0~한자릿수 수치는 신뢰를 훼손 → 콜드스타트 역효과 방지. 수치 확보 후 노출·'베타/초대제' 프레이밍.</div>
+          <div class="node-ref">PRD 한줄요약·§1·§9 / IA 0.0</div>
+        </div>
+      </div>
+    </div>
+    <div class="conn"><i class="o">▼</i></div>
+
+    <div class="row">
+      <div class="slot o" style="grid-column:1 / span 3; justify-content:center;">
+        <div class="node o" style="max-width:70%;">
+          <div class="node-head"><span class="lane-tag">ORBIT</span><span class="step">0.0 인증</span><span class="tag t-mvp">MVP</span></div>
+          <div class="node-title">회원가입 → 약관 · 개인정보 동의</div>
+          <div class="node-desc">소셜/이메일 가입 직후 <b>일반 TOS 동의(법무 필수)</b>. 비로그인 진입 시 <b>게이팅 모달</b>(폼 동일).</div>
+          <div class="node-ref">법무 · PRD §6③ⓓ와 구분·§6④ / IA 0.0</div>
+        </div>
+      </div>
+    </div>
+    <div class="conn"><i class="o">▼</i></div>
+
+    <div class="bar decision" style="grid-column:1/span 3;">
+      ◇ 서비스 진입 분기 <span class="opt">— "아이디어로 팀 만들기(수요)" · "팀원으로 합류하기(공급)"</span>
+    </div>
+    <div class="note" style="margin-bottom:6px;">
+      <div class="node-why" style="margin:0;"><b style="color:var(--orbit)">왜 이 분기가 핵심 라우팅인가:</b> 선택한 side를 <b>진입 시점에 캡처</b>해 코호트를 분리(H1수요 / H1공급을 각각 측정). 온보딩은 분기 뒤 실행 — <b style="color:var(--demand)">수요=스킵(한 줄 직행, 최소 입력)</b> · <b style="color:var(--supply)">공급=역할·관심 1회 입력(=등록 4단계 ⓐ)</b>. <span style="color:var(--new);font-weight:700">[v2.1.1]</span></div>
+    </div>
+    <div class="conn"><i class="d">▼</i><i class="s">▼</i></div>
+
+    <!-- PHASE 1.0 -->
+    <div class="phase"><span class="no">1.0</span><span class="nm">수요자 여정</span><span class="hint">결과-먼저 하이브리드 3단계 · 상단 진행바 1/3·2/3·3/3 · 구체화→후보 클릭 0회</span></div>
+
+    <!-- 1단계 -->
+    <div class="row">
+      <div class="slot d">
+        <div class="node d">
+          <div class="node-head"><span class="lane-tag">수요</span><span class="step">① 1/3</span><span class="brand">ORBIT 시작</span><span class="tag t-mvp">MVP</span></div>
+          <div class="node-title">한 줄 아이디어 입력</div>
+          <div class="node-desc">"이 문제를 이렇게 풀고 싶다" 한 줄. <b>최소 입력</b>으로 시작.</div>
+          <div class="node-ref">PRD §3·§6②ⓐ / IA 1.0</div>
+        </div>
+      </div>
+    </div>
+    <div class="conn"><i class="d">▼</i></div>
+
+    <div class="row">
+      <div class="slot o">
+        <div class="node o">
+          <div class="node-head"><span class="lane-tag">ORBIT</span><span class="step">① 번역</span><span class="brand">ORBIT 중…</span><span class="tag t-mvp">MVP</span><span class="tag t-h">H2</span></div>
+          <div class="node-title">프로젝트 페이지 자동 생성 <span style="font-weight:500;color:var(--slate)">(~1분)</span></div>
+          <div class="node-desc">한 줄 → <b>필요한 역할 + 작업 요구</b>로 구체화(역할 번역, 도메인 무관).</div>
+          <div class="node-ref">PRD §3·§6②ⓐ / IA 1.0</div>
+        </div>
+      </div>
+    </div>
+    <div class="bar loop"><span class="ico">↩</span>번역 실패 · 타임아웃 → <b>재시도 폴백</b> <small>(AI 오류 시 안전 복구)</small></div>
+    <div class="conn"><i class="d">▼</i></div>
+
+    <div class="row">
+      <div class="slot d">
+        <div class="node d">
+          <div class="node-head"><span class="lane-tag">수요</span><span class="step">① 결과 A</span><span class="tag t-mvp">MVP</span><span class="tag t-new">v2.1.1</span></div>
+          <div class="node-title">프로젝트 페이지 (구체화 결과)</div>
+          <div class="node-desc">프로젝트명·태그라인·<b>목업 1~3장('미리보기' 명시)</b> · 핵심기능·수익 그림(목업↔기획서 토글) · <b>필요 팀원 카드</b>(아이디어 특화 역할 1~2 포함).</div>
+          <div class="node-why"><b>왜:</b> 목업에 '예시' 라벨 → 허위 클릭 기대 제거. 팀 뱃지는 <b>'이번 역할 · 0/1'</b> — 채울 수 없는 3(0/3)을 약속하지 않음. MVP=1역할만 활성, 나머지 '준비중' 비활성.</div>
+          <div class="node-ref">PRD §6①·§6②ⓐ / IA 1.0</div>
+        </div>
+      </div>
+    </div>
+    <div class="bar gate"><span class="ico">⛬</span>타깃 경계 게이트 <small>· 인라인 1줄 "이미 만들 방법이 그려지나요? → 외주(크몽)가 나을 수 있어요" · 통과 기본 / 이탈 선택 · H1수요</small></div>
+    <div class="bar loop"><span class="ico">↩</span>결과 불만 → <b>한 줄 다시 쓰기(재생성)</b> <small>(화면 내 직접 편집기는 Post)</small></div>
+    <div class="conn"><i class="d">▼</i></div>
+
+    <div class="row">
+      <div class="slot d">
+        <div class="node d">
+          <div class="node-head"><span class="lane-tag">수요</span><span class="step">① 결과 B</span><span class="tag t-mvp">MVP</span><span class="tag t-h">H3</span><span class="tag t-new">v2.1.1</span></div>
+          <div class="node-title">팀원 후보 미리보기 (2~3명 · 동시 제시)</div>
+          <div class="node-desc">구체화와 <b>동시에</b> 후보 노출(결과 먼저). <b>예비 3축</b>(역할·도메인·베팅) 레벨 <b>높음/보통</b> · 점수 %는 <b>?? 마스킹(자물쇠)</b> · <b>약점 표기</b> · '왜 맞는지' 근거 문장.</div>
+          <div class="node-why"><b>왜 마스킹인가(순환참조 해소):</b> 예비 3축은 <b>등록 신호(F9)</b>만으로 산출 — 공급자 3질문 답변 <b>이전</b>이라 정확 %는 확정 불가. 최종 %는 4.0에서. + 약점 표기로 오버셀링 방지(정직성).</div>
+          <div class="node-ref">PRD §3·§6②ⓑ / IA 1.0</div>
+        </div>
+      </div>
+      <div class="slot s">
+        <div class="node post s">
+          <div class="node-head"><span class="lane-tag">공급</span><span class="step">빈 상태</span><span class="tag t-mvp">MVP</span></div>
+          <div class="node-title">후보 0명 → 알림 신청</div>
+          <div class="node-desc">풀 부족(콜드스타트) 시 안내 + 확보되면 알림. 공급 풀은 2.0에서 채워짐.</div>
+          <div class="node-ref">PRD §6②ⓑ / IA 1.0</div>
+        </div>
+      </div>
+    </div>
+    <div class="conn"><i class="d">▼</i></div>
+
+    <!-- 2단계 -->
+    <div class="row">
+      <div class="slot d">
+        <div class="node d">
+          <div class="node-head"><span class="lane-tag">수요</span><span class="step">② 2/3</span><span class="tag t-mvp">MVP</span><span class="tag t-h">H3</span></div>
+          <div class="node-title">함께할 팀원 선택 (후보 1명 확정)</div>
+          <div class="node-desc">마스킹·약점 표기 유지. <b>MVP=1역할·1명 완주</b>(나머지 역할 준비중).</div>
+          <div class="node-ref">PRD §6②ⓑ / IA 1.0</div>
+        </div>
+      </div>
+    </div>
+    <div class="bar loop"><span class="ico">↩</span>안 맞으면 → <b>다른 후보 다시 보기(유연한 재선택)</b> <small>· 1명 안 맞아도 이탈 방지 · H4</small></div>
+    <div class="conn"><i class="d">▼</i></div>
+
+    <!-- 3단계 -->
+    <div class="row">
+      <div class="slot d">
+        <div class="node d">
+          <div class="node-head"><span class="lane-tag">수요</span><span class="step">③ 3/3</span><span class="tag t-mvp">MVP</span><span class="tag t-h">H3</span><span class="tag t-new">v2.1.1</span></div>
+          <div class="node-title">매칭 3질문 구성</div>
+          <div class="node-desc"><b>Q1·Q2 자동</b>(계획서 분석 자동 선별, 초대 직전 확인 표시) + <b>Q3 수요자 질문</b>(선택·기본 접힘).</div>
+          <div class="node-why"><b>왜 Q3 가드레일:</b> 예시 힌트 + 나이·성별 등 인구통계형 입력 시 부드러운 안내(공정성·법적 리스크 예방, 하드블록 아님).</div>
+          <div class="node-ref">PRD §3②·§6ⓒ / IA 1.0</div>
+        </div>
+      </div>
+    </div>
+    <div class="conn"><i class="d">▼</i></div>
+
+    <div class="row">
+      <div class="slot d">
+        <div class="node d">
+          <div class="node-head"><span class="lane-tag">수요</span><span class="step">③ 초대</span><span class="brand">ORBIT 초대</span><span class="tag t-mvp">MVP</span><span class="tag t-h">H1</span></div>
+          <div class="node-title">팀원에게 ORBIT 초대 보내기</div>
+          <div class="node-desc"><b>발송 전 확인</b> → 초대. 현재 <b>수요→공급 단방향</b> 제안(공급 능동 신청은 Post).</div>
+          <div class="node-ref">PRD §3·§6ⓒ / IA 1.0</div>
+        </div>
+      </div>
+    </div>
+    <div class="bar handoff"><span class="ico">→</span>ORBIT 초대 발송 → <b style="margin-left:2px">공급자 '받은 초대함(수신함)'으로 전달</b></div>
+
+    <!-- PHASE 2.0 -->
+    <div class="phase"><span class="no">2.0</span><span class="nm">공급자 등록</span><span class="hint">최초 1회 · 재방문 시 수신함 직행 · 능동 탐색은 Post</span></div>
+
+    <div class="row">
+      <div class="slot s">
+        <div class="node s">
+          <div class="node-head"><span class="lane-tag">공급</span><span class="step">등록 4단계</span><span class="tag t-mvp">MVP</span><span class="tag t-h">H1공급</span><span class="tag t-new">v2.1.1</span></div>
+          <div class="node-title">팀원 등록 · 인증 (최초 1회)</div>
+          <div class="node-desc"><b>ⓐ 역할</b>(온보딩) → <b>ⓑ 실력 증명</b>(운영자 검증·컨시어지·'검증 대기') → <b>ⓒ 베팅 의향</b>(지분·성과 수용) → <b>ⓓ 필수 동의</b>.</div>
+          <div class="node-why"><b>왜 능동 동의(ⓓ):</b> IP 귀속·비밀유지(NDA-lite)+개인정보를 <b>기본 미체크→능동 체크</b>. 수요자 아이디어 보호의 <b>핵심 방어선</b>이자 법적 유효성 확보. 미동의 시 '검증 신청' 비활성.</div>
+          <div class="node-ref">PRD §6③④ / IA 2.0</div>
+        </div>
+      </div>
+    </div>
+    <div class="bar gate" style="justify-content:flex-end;"><span class="ico">⛬</span>ⓒ에서 <b style="margin:0 4px">'선보수 필요(생계형)'</b> 선택 → 부드러운 이탈 안내 <small>· 자기선별로 공급 순도='공동창업급' 유지 · H1공급</small></div>
+    <div class="conn"><i class="s">▼</i></div>
+
+    <div class="row">
+      <div class="slot s">
+        <div class="node post s">
+          <div class="node-head"><span class="lane-tag">공급</span><span class="step">백엔드</span><span class="tag t-mvp">MVP</span></div>
+          <div class="node-title">공동창업 후보 DB</div>
+          <div class="node-desc">결과물·평판 + 베팅 의향 집계 = <b>3축 궁합의 소스 데이터</b>(전용 엔티티). ① 후보 미리보기의 원천.</div>
+          <div class="node-ref">PRD §6③④ / IA 2.0</div>
+        </div>
+      </div>
+    </div>
+    <div class="conn"><i class="s">▼</i></div>
+
+    <div class="row">
+      <div class="slot s">
+        <div class="node s">
+          <div class="node-head"><span class="lane-tag">공급</span><span class="step">공급 메인</span><span class="tag t-mvp">MVP</span></div>
+          <div class="node-title">받은 ORBIT 초대 확인 (수신함)</div>
+          <div class="node-desc">수요자가 보낸 제안 수신. <b>재방문 시 수신함 직행</b>(등록 1회 후). 능동 탐색·합류 신청은 Post.</div>
+          <div class="node-ref">PRD §6③ / IA 2.0·6.0</div>
+        </div>
+      </div>
+    </div>
+    <div class="conn"><i class="s">▼</i></div>
+
+    <!-- PHASE 3.0 -->
+    <div class="phase"><span class="no">3.0</span><span class="nm">공급자 응답</span><span class="hint">3축 산출의 필수 선행 데이터 · 수락 결정 지점</span></div>
+
+    <div class="row">
+      <div class="slot s">
+        <div class="node s">
+          <div class="node-head"><span class="lane-tag">공급</span><span class="step">3.0 답변</span><span class="tag t-mvp">MVP</span><span class="tag t-h">H3</span><span class="tag t-new">v2.1.1</span></div>
+          <div class="node-title">매칭 3질문 답변</div>
+          <div class="node-desc">받은 초대의 3질문에 답 → <b>3축 적합도 산출 입력</b>(4.0 궁합의 필수 선행 데이터). 수락 결정 지점에 <b>지분·IP 안심 문구</b>.</div>
+          <div class="node-ref">PRD §3·§6③④ / IA 3.0</div>
+        </div>
+      </div>
+    </div>
+    <div class="conn"><i class="s">▼</i></div>
+
+    <div class="bar decision" style="grid-column:1/span 3;">◇ 수락 / 거절 <span class="opt">— 공급자 결정</span></div>
+    <div class="bar loop"><span class="ico">↩</span><b>거절 시</b> → 수요자 <b>②단계 '다른 후보 다시 보기'</b>로 복귀 <small>· H4</small></div>
+    <div class="conn"><i class="o">▼ 수락 시</i></div>
+
+    <!-- PHASE 4.0 -->
+    <div class="phase"><span class="no">4.0</span><span class="nm">합류점</span><span class="hint">양쪽 · 유일한 최종 점수 공개 지점 · ORBIT의 끝점</span></div>
+
+    <div class="row">
+      <div class="slot o" style="grid-column:1 / span 3; justify-content:center;">
+        <div class="node j" style="max-width:74%;">
+          <div class="node-head"><span class="lane-tag">합류점</span><span class="step">4.0 궁합</span><span class="tag t-mvp">MVP</span></div>
+          <div class="node-title">ORBIT 궁합(적합도) 결과 · 최종 3축</div>
+          <div class="node-desc"><b>역할 × 도메인 × 베팅</b> 정렬 + '왜 맞는지' 근거 2~3줄. 공급자 3질문 답변 기반 <b>최종 산출</b>.</div>
+          <div class="node-why"><b>순환참조 완결:</b> ①단계 예비 3축(등록 신호·마스킹)과 구분되는 <b>유일한 최종 점수 공개 지점</b>. 자물쇠가 여기서 풀린다.</div>
+          <div class="node-ref">PRD §3④·§6ⓒ / IA 4.0</div>
+        </div>
+      </div>
+    </div>
+    <div class="conn"><i class="o">▼</i></div>
+
+    <div class="row">
+      <div class="slot o" style="grid-column:1 / span 3; justify-content:center;">
+        <div class="node j" style="max-width:74%;">
+          <div class="node-head"><span class="lane-tag">합류점</span><span class="step">4.0 합의</span><span class="brand">ORBIT 완료</span><span class="tag t-mvp">MVP</span></div>
+          <div class="node-title">합류 합의 (양쪽 동의)</div>
+          <div class="node-desc">양쪽 동의 → <b>합의 템플릿</b>(역할·기여·보상/지분 조건). <b>정산 비관여</b> — 템플릿까지만(OoS).</div>
+          <div class="node-ref">PRD §3·§8 / IA 4.0</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="nsm">
+      <div class="star">★ NORTH STAR METRIC</div>
+      <div class="big">주간 합류 합의 수 &nbsp;+1</div>
+      <div class="sub">'한 줄 → 구체화 수용 → 후보 선택 → 합류 의향 상호 합의'까지 도달 · MVP: 1역할 합의 = +1 · <b>통제 가능한 끝점</b>에 지표를 둔다</div>
+    </div>
+    <div class="conn"><i class="o">▼</i></div>
+
+    <div class="row">
+      <div class="slot o" style="grid-column:1 / span 3; justify-content:center;">
+        <div class="node j" style="max-width:74%;">
+          <div class="node-head"><span class="lane-tag">합류점</span><span class="step">4.0 핸드오프</span><span class="tag t-mvp">MVP</span></div>
+          <div class="node-title">협업 채널 연결 (슬랙) · 책임 경계 고지</div>
+          <div class="node-desc">합의 성사 후 슬랙 연결 = <b>플랫폼 밖으로의 핸드오프</b>. MVP=운영자 개설 채널 초대 링크(컨시어지) / Post=OAuth. 고지: <b>ORBIT은 합류 합의까지 · 이후 제작·정산·지분은 당사자</b>.</div>
+          <div class="node-ref">PRD §3(OoS)·한줄요약 / IA 4.0</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PHASE 5.0 -->
+    <div class="phase"><span class="no">5.0</span><span class="nm">사후 (협업 후)</span><span class="hint">전부 Post · 신뢰·락인 자산</span></div>
+    <div class="note">
+      <div class="note-grid">
+        <div class="mini"><div class="mt">양방향 평가 <span class="tag t-post">Post</span></div><div class="md">서로 평가 남기기 — 불똥 방지·신뢰</div></div>
+        <div class="mini"><div class="mt">학습형 재매칭 <span class="tag t-post">Post</span></div><div class="md">'왜 틀어졌나' 수집 → 재탐색 · H4·H6</div></div>
+        <div class="mini"><div class="mt">증명 자산 누적 <span class="tag t-post">Post</span></div><div class="md">협업 이력·평판 락인 · H6</div></div>
+      </div>
+    </div>
+
+    <!-- PHASE 6.0 -->
+    <div class="phase"><span class="no">6.0</span><span class="nm">공통</span><span class="hint">로그인 상시 진입 · 역할별 탭</span></div>
+    <div class="note">
+      <div class="note-grid">
+        <div class="mini"><div class="mt">대시보드 <span class="tag t-mvp">MVP</span></div><div class="md">내 활동 요약(진행중/완료/대기)·역할별 탭 공통 진입</div></div>
+        <div class="mini d"><div class="mt">[팀 만들기 탭] 수요 <span class="tag t-mvp">MVP</span></div><div class="md">내 프로젝트·모집 현황·내가 초대한 팀원 / 받은 신청=Post</div></div>
+        <div class="mini s"><div class="mt">[합류 탭] 공급 <span class="tag t-mvp">MVP</span></div><div class="md">받은 초대(메인)·초대 상태(대기/수락/거절) / 신청한 프로젝트=Post</div></div>
+        <div class="mini"><div class="mt">프로필 · 인증 <span class="tag t-mvp">MVP</span></div><div class="md">간단/상세·베팅의향·실력 인증 상태·재신청</div></div>
+        <div class="mini"><div class="mt">알림 <span class="tag t-mvp">MVP</span></div><div class="md">초대·신청·합의·평가 수신함</div></div>
+        <div class="mini"><div class="mt">설정 · 결제 <span class="tag t-post">Post</span></div><div class="md">계정·알림·탈퇴·슬랙 연동 해제 / 멤버십=BM 2단계</div></div>
+      </div>
+    </div>
+
+  </div><!-- /flow -->
+
+  <footer>
+    ORBIT 유저플로우 v1.1 · PRD v2.1.1 & IA v2.1.1 정합 · 작성자 이승주 · 브랜드 토큰(네이비·블루/수요·청록/공급·그린/완료·보라/MVP) 승계
+  </footer>
+
+</div>
+</body>
+</html>

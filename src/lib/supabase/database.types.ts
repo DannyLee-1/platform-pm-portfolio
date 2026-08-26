@@ -1,0 +1,22 @@
+export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
+
+export type Database = {
+  public: {
+    Tables: {
+      profiles: { Row: { id: string; display_name: string | null; role: string | null; interest: string | null; proof_url: string | null; proof_summary: string | null; betting_intent: "equity" | "paid" | null; verification_status: "not-started" | "pending" | "approved"; created_at: string; updated_at: string }; Insert: Partial<Database["public"]["Tables"]["profiles"]["Row"]> & { id: string }; Update: Partial<Database["public"]["Tables"]["profiles"]["Row"]>; Relationships: [] };
+      projects: { Row: { id: string; owner_id: string; idea: string; title: string | null; summary: string | null; status: string; regeneration_count: number; created_at: string; updated_at: string }; Insert: Partial<Database["public"]["Tables"]["projects"]["Row"]> & { owner_id: string; idea: string }; Update: Partial<Database["public"]["Tables"]["projects"]["Row"]>; Relationships: [] };
+      project_roles: { Row: { id: string; project_id: string; role_name: string; status: string; is_mvp: boolean }; Insert: Partial<Database["public"]["Tables"]["project_roles"]["Row"]> & { project_id: string; role_name: string }; Update: Partial<Database["public"]["Tables"]["project_roles"]["Row"]>; Relationships: [] };
+      invitations: { Row: { id: string; project_id: string; candidate_id: string; status: "sent" | "opened" | "accepted" | "rejected" | "expired"; q3: string | null; reject_reason: string | null; expires_at: string | null; scenario_candidate_key: "junyoung" | "seoyeon" | null; scenario_mode: boolean; created_at: string; updated_at: string }; Insert: Partial<Database["public"]["Tables"]["invitations"]["Row"]> & { project_id: string; candidate_id: string }; Update: Partial<Database["public"]["Tables"]["invitations"]["Row"]>; Relationships: [] };
+      matching_questions: { Row: { id: string; invitation_id: string; question_no: number; source: "orbit" | "demand"; prompt: string }; Insert: Partial<Database["public"]["Tables"]["matching_questions"]["Row"]> & { invitation_id: string; question_no: number; source: "orbit" | "demand"; prompt: string }; Update: Partial<Database["public"]["Tables"]["matching_questions"]["Row"]>; Relationships: [] };
+      matching_answers: { Row: { id: string; question_id: string; invitation_id: string; responder_id: string; answer: string; created_at: string }; Insert: Partial<Database["public"]["Tables"]["matching_answers"]["Row"]> & { question_id: string; invitation_id: string; responder_id: string; answer: string }; Update: Partial<Database["public"]["Tables"]["matching_answers"]["Row"]>; Relationships: [] };
+      matches: { Row: { id: string; invitation_id: string; role_score: number; domain_score: number; betting_score: number; why_match: string | null; created_at: string }; Insert: Partial<Database["public"]["Tables"]["matches"]["Row"]> & { invitation_id: string }; Update: Partial<Database["public"]["Tables"]["matches"]["Row"]>; Relationships: [] };
+      agreements: { Row: { id: string; project_id: string; invitation_id: string; contribution: string | null; compensation: string | null; demand_signed_at: string | null; supply_signed_at: string | null; status: "draft" | "partially-signed" | "signed" | "cancelled"; created_at: string; updated_at: string }; Insert: Partial<Database["public"]["Tables"]["agreements"]["Row"]> & { project_id: string; invitation_id: string }; Update: Partial<Database["public"]["Tables"]["agreements"]["Row"]>; Relationships: [] };
+      notifications: { Row: { id: string; user_id: string; title: string; detail: string; href: string | null; read_at: string | null; created_at: string }; Insert: Partial<Database["public"]["Tables"]["notifications"]["Row"]> & { user_id: string; title: string; detail: string }; Update: Partial<Database["public"]["Tables"]["notifications"]["Row"]>; Relationships: [] };
+      events: { Row: { id: string; user_id: string | null; event_name: string; metadata: Json; created_at: string }; Insert: Partial<Database["public"]["Tables"]["events"]["Row"]> & { event_name: string }; Update: Partial<Database["public"]["Tables"]["events"]["Row"]>; Relationships: [] };
+    };
+    Views: Record<string, never>;
+    Functions: Record<string, never>;
+    Enums: Record<string, never>;
+    CompositeTypes: Record<string, never>;
+  };
+};

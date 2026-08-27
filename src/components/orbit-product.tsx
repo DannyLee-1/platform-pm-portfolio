@@ -429,6 +429,7 @@ function Start({
         </div>
         <Button
           tone="demand"
+          className="op-start-primary"
           disabled={!valid}
           onClick={() => { track("idea_submitted"); go("/translating"); }}
         >ORBIT 시작</Button>
@@ -498,10 +499,10 @@ function Project({
             <div className="op-regenerate"><button onClick={regenerate}>↩ 한 줄 다시 쓰기</button><span>재생성 {state.regenerateCount}/3 (오늘)</span></div>
           </section>
           <aside className="op-candidate-panel">
-            <div className="op-section-row"><h2>팀원 후보</h2><span>개발 2명</span></div>
-            <CandidateCard id="junyoung" preview />
-            <CandidateCard id="seoyeon" preview />
-            <Button tone="demand" className="full" onClick={() => { track("translation_accepted"); go("/select"); }}>이 팀으로 진행</Button>
+            <div className="op-section-row"><h2>팀원 후보</h2><span>한 명을 선택하세요</span></div>
+            <CandidateCard id="junyoung" selected={state.selected === "junyoung"} onSelect={(selected) => { update({ selected }); track("candidate_preview_selected", selected); }} />
+            <CandidateCard id="seoyeon" selected={state.selected === "seoyeon"} onSelect={(selected) => { update({ selected }); track("candidate_preview_selected", selected); }} />
+            <Button tone="demand" className="full" disabled={!state.selected} onClick={() => { track("translation_accepted", state.selected ?? ""); go("/select"); }}>선택한 팀원 확인</Button>
           </aside>
         </div>
       </div>
@@ -512,9 +513,74 @@ function Project({
 function ProjectMock() {
   return (
     <>
-      <div className="op-mock-grid">
-        {["모임 등록", "빈자리 탐색", "참여 신청"].map((label, index) => <article key={label}><span>화면 구성</span><i className={`shape shape-${index}`} /><b>{label}</b></article>)}
-      </div>
+      <section className="op-mock-product" aria-label="모임온 서비스 화면 목업">
+        <header className="op-mock-summary">
+          <span>아이디어 구체화 결과</span>
+          <div>
+            <b>동네 모임의 남은 자리와 참여자를 실시간으로 연결</b>
+            <p>첫 검증은 성수동에서 시작해 ‘모임 발견 → 상세 확인 → 참여 신청’ 한 흐름에 집중합니다.</p>
+          </div>
+        </header>
+        <div className="op-phone-row">
+          <article className="op-phone">
+            <div className="op-phone-status"><span>9:41</span><span>● ◔</span></div>
+            <div className="op-appbar"><b>모임온</b><span>성수동⌄</span></div>
+            <div className="op-mobile-screen">
+              <label className="op-mobile-search">⌕ 관심 있는 모임을 찾아보세요</label>
+              <div className="op-mobile-chips"><b>전체</b><span>운동</span><span>취미</span><span>스터디</span></div>
+              <div className="op-mobile-title"><b>오늘 참여 가능한 모임</b><span>6개 보기</span></div>
+              <div className="op-meet-card">
+                <div className="op-meet-cover walk"><span>산책</span><em>2자리 남음</em></div>
+                <b>서울숲 퇴근길 산책</b>
+                <small>오늘 19:30 · 서울숲역 · 4/6명</small>
+              </div>
+              <div className="op-meet-card compact"><i>☕</i><span><b>성수 카페 신상 탐방</b><small>토 14:00 · 1자리 남음</small></span></div>
+            </div>
+            <footer><span>⌂<small>홈</small></span><span>⌕<small>탐색</small></span><span>＋<small>모임</small></span><span>○<small>내 활동</small></span></footer>
+            <p className="op-screen-caption"><b>01 · 빈자리 탐색</b><span>지역·취향·남은 자리로 빠르게 발견</span></p>
+          </article>
+
+          <article className="op-phone">
+            <div className="op-phone-status"><span>9:41</span><span>● ◔</span></div>
+            <div className="op-detail-cover"><button type="button" aria-label="이전 화면">‹</button><span>서울숲 산책</span><em>모집중</em></div>
+            <div className="op-mobile-screen detail">
+              <span className="op-mobile-tag">운동 · 가벼운 산책</span>
+              <h3>서울숲 퇴근길 산책</h3>
+              <p>하루를 가볍게 마무리하고 싶은 동네 이웃과 60분을 걷습니다.</p>
+              <dl>
+                <div><dt>일시</dt><dd>오늘 19:30</dd></div>
+                <div><dt>장소</dt><dd>서울숲역 3번 출구</dd></div>
+                <div><dt>인원</dt><dd>4/6명 · 2자리 남음</dd></div>
+              </dl>
+              <div className="op-capacity"><span><i style={{ width: "67%" }} /></span><small>마감까지 2자리</small></div>
+              <div className="op-host"><i>다솔</i><span><b>김다솔 운영자</b><small>동네 모임 12회 운영 · 응답 빠름</small></span></div>
+              <button type="button" className="op-mobile-cta">이 모임에 참여 신청</button>
+            </div>
+            <p className="op-screen-caption"><b>02 · 상세 확인</b><span>일정·장소·신뢰·잔여석을 한 화면에서 판단</span></p>
+          </article>
+
+          <article className="op-phone">
+            <div className="op-phone-status"><span>9:41</span><span>● ◔</span></div>
+            <div className="op-appbar"><b>참여 신청</b><span>1/1</span></div>
+            <div className="op-mobile-screen request">
+              <div className="op-request-check">✓</div>
+              <h3>신청을 보낼 준비가 됐어요</h3>
+              <p>운영자가 확인하면 알림으로 알려드릴게요.</p>
+              <div className="op-request-card"><i className="walk">산책</i><span><b>서울숲 퇴근길 산책</b><small>오늘 19:30 · 서울숲역</small></span></div>
+              <label>운영자에게 한마디<textarea readOnly value="퇴근 후 가볍게 걷고 싶어요. 처음 참여합니다!" /></label>
+              <div className="op-request-steps"><span className="done"><i>✓</i>신청 작성</span><span><i>2</i>운영자 확인</span><span><i>3</i>참여 확정</span></div>
+              <button type="button" className="op-mobile-cta">참여 신청 보내기</button>
+            </div>
+            <p className="op-screen-caption"><b>03 · 참여 신청</b><span>한 번의 신청과 상태 알림으로 이탈 최소화</span></p>
+          </article>
+        </div>
+        <div className="op-mock-decisions">
+          <article><small>핵심 사용자</small><b>빈자리를 채우려는 운영자<br/>새 활동을 찾는 참여자</b></article>
+          <article><small>첫 핵심 행동</small><b>모임 상세 확인 후<br/>참여 신청 1건 전송</b></article>
+          <article><small>검증 지표</small><b>상세→신청 전환율<br/>운영자 승인 소요 시간</b></article>
+        </div>
+      </section>
+      <div className="op-mock-mobile-note">모바일 화면은 좌우로 넘겨 확인할 수 있습니다.</div>
       <h2 className="op-small-heading">핵심 기능</h2>
       <div className="op-feature-list">
         <p><b>모임 등록</b><span>일정과 남은 자리 입력</span><em>개발</em></p>
@@ -564,7 +630,7 @@ function SelectCandidate({
         </div>
         <div className="op-actions">
           <Button tone="demand" disabled={!state.selected} onClick={() => { track("candidate_selected", state.selected ?? ""); update({ inviteStatus: null, rejectReason: "" }); go("/invite"); }}>이 팀원으로 진행</Button>
-          <Button tone="ghost" onClick={() => { track("reselect_click"); update({ selected: null }); toast("후보를 다시 펼쳤어요."); }}>다른 후보 다시 보기</Button>
+          <Button tone="ghost" onClick={() => { track("reselect_click"); update({ selected: null }); toast("후보 목록으로 돌아왔어요."); go("/project"); }}>다른 후보 다시 보기</Button>
         </div>
       </div>
     </main>
@@ -651,6 +717,10 @@ function Inbox({ state, go }: { state: OrbitState; go: (path: string) => void })
     <main className="op-page supply-bg">
       <ProductHeader context="받은 ORBIT 초대" tone="supply" />
       <div className="op-container">
+        <aside className="op-viewer-notice">
+          <span>초대받은 팀원 화면</span>
+          <div><b>이 페이지는 프로젝트 초대를 받은 팀원에게 보여집니다.</b><p>받은 초대와 응답 상태는 로그인 후 마이페이지의 ‘합류’에서 다시 확인할 수 있어요.</p></div>
+        </aside>
         <div className="op-title-row"><div><span className="op-kicker supply">팀원 합류</span><h1>받은 초대</h1></div><span className={`op-status ${state.verification}`}>{state.verification === "pending" ? "실력 검증 대기" : state.verification === "approved" ? "실력 인증 승인" : "등록 전"}</span></div>
         {!hasInvite ? <section className="op-empty"><span>0</span><h2>도착한 초대가 없어요</h2><p>도착하면 알림에서 확인할 수 있습니다.</p><Button tone="ghost" onClick={() => go("/home/invites")}>합류 현황 보기</Button></section> : <div className="op-inbox-grid"><section className="op-invite-list"><button className="active"><span className="op-person demand">다솔</span><span><b>모임온, 동네 취향을 잇다</b><small>개발 · 보낸 사람 김다솔</small></span><em>{inviteStatusLabel(state.inviteStatus)}</em></button></section><aside className="op-preview"><span className="op-kicker supply">초대 내용</span><h2>모임온, 동네 취향을 잇다</h2><p>소모임 빈자리 매칭 플랫폼</p><dl><div><dt>필요 역할</dt><dd>개발</dd></div><div><dt>받는 팀원</dt><dd>{candidate.name}</dd></div><div><dt>유효기간</dt><dd>7일</dd></div></dl><Button tone="supply" onClick={() => { track("invite_opened"); go("/respond"); }}>{state.inviteStatus === "sent" ? "초대 열기" : "응답 화면 보기"}</Button></aside></div>}
       </div>
@@ -692,6 +762,7 @@ function Respond({
     <main className="op-page supply-bg">
       <ProductHeader context="초대에 답하기" tone="supply" />
       <div className="op-container">
+        <aside className="op-viewer-notice compact"><span>초대받은 팀원 화면</span><p>보낸 사람의 질문에 답한 뒤 합류 여부를 선택하는 단계입니다.</p></aside>
         <span className="op-kicker supply">모임온 · 개발</span><h1>질문에 답하고 합류를 선택하세요</h1>
         <p className="op-lead">답변 후 최종 궁합이 공개됩니다.</p>
         <div className="op-respond-grid">
@@ -807,12 +878,12 @@ function AppShell({
       <aside className="op-sidebar">
         <ProductLogo />
         <nav>
-          <ProductLink className={screen === "home" ? "active" : ""} href="/home"><span>⌂</span>대시보드</ProductLink>
-          <ProductLink className={screen === "home/projects" ? "active demand" : ""} href="/home/projects"><span>◇</span>팀 만들기</ProductLink>
-          <ProductLink className={screen === "home/invites" ? "active supply" : ""} href="/home/invites"><span>↗</span>합류</ProductLink>
-          <ProductLink className={screen === "profile" ? "active" : ""} href="/profile"><span>○</span>프로필 · 인증</ProductLink>
-          <ProductLink className={screen === "notifications" ? "active" : ""} href="/notifications"><span>•</span>알림{state.notices.length > 0 && <em>{state.notices.length}</em>}</ProductLink>
-          <button onClick={logout} aria-label={demo ? "홈으로" : "로그아웃"}><span aria-hidden="true">↪</span>{demo ? "홈으로" : "로그아웃"}</button>
+          <ProductLink className={screen === "home" ? "active" : ""} href="/home">대시보드</ProductLink>
+          <ProductLink className={screen === "home/projects" ? "active demand" : ""} href="/home/projects">팀 만들기</ProductLink>
+          <ProductLink className={screen === "home/invites" ? "active supply" : ""} href="/home/invites">합류</ProductLink>
+          <ProductLink className={screen === "profile" ? "active" : ""} href="/profile">프로필 · 인증</ProductLink>
+          <ProductLink className={screen === "notifications" ? "active" : ""} href="/notifications">알림{state.notices.length > 0 && <em>{state.notices.length}</em>}</ProductLink>
+          <button onClick={logout}>{demo ? "홈으로" : "로그아웃"}</button>
         </nav>
         <div className="op-sidebar-user"><span className="op-avatar">나</span><div><b>김다솔</b><small>ORBIT 멤버</small></div></div>
       </aside>
@@ -939,6 +1010,10 @@ export function OrbitProduct({
       subscription.unsubscribe();
     };
   }, [demo, setState]);
+  useEffect(() => {
+    if (demo || !authChecked || !state.signedIn || !["login", "signup"].includes(screen)) return;
+    router.replace("/home");
+  }, [authChecked, demo, router, screen, state.signedIn]);
   useEffect(() => {
     if (demo || !hydrated) return;
     const client = supabase;
@@ -1090,7 +1165,7 @@ export function OrbitProduct({
     update({ registered: true, verification: "pending" });
     track("supplier_register_complete");
     toast("검증 신청 완료 · 운영자 확인 전까지 검증 대기로 표시돼요.");
-    go("/inbox");
+    go("/home/invites");
   };
   const logout = async () => {
     if (demo) {
@@ -1192,6 +1267,9 @@ export function OrbitProduct({
     }
   };
 
+  if (!demo && ["login", "signup"].includes(screen) && authChecked && state.signedIn) {
+    return <main className="op-loading"><div className="op-orbit-spin"><i /></div><b>ORBIT</b><p>마이페이지로 이동하고 있어요.</p></main>;
+  }
   if (!demo && screen === "login") return <Login />;
   if (!demo && screen === "signup") return <Signup />;
   if (screen === "terms" || screen === "privacy") return <ProductBasePathContext.Provider value={basePath}><Legal type={screen} /></ProductBasePathContext.Provider>;

@@ -8,7 +8,7 @@
 보이지 않는 요구와 망설임을 사용자 여정과 운영 정책으로 구체화하고,<br/>
 **문제 정의부터 PRD·프로토타입·검증용 MVP 구현까지 끝을 봅니다.**
 
-[**포트폴리오 PDF**](https://portfolio-dannylee.vercel.app/file/IT_PM_Portfolio_LeeSeungjoo.pdf#page=1&view=FitH)&nbsp;&nbsp;·&nbsp;&nbsp;[**검증용 MVP**](https://portfolio-dannylee.vercel.app)
+[**로그인 없는 ORBIT 데모**](https://portfolio-dannylee.vercel.app/demo)&nbsp;&nbsp;·&nbsp;&nbsp;[**포트폴리오 PDF**](https://portfolio-dannylee.vercel.app/file/IT_PM_Portfolio_LeeSeungjoo.pdf#page=1&view=FitH)
 
 </div>
 
@@ -41,13 +41,19 @@
 <tr><td><strong>문제</strong></td><td>사용자는 필요한 역할을 설명하기 어렵고, 후보의 신뢰도와 합류 조건을 판단하기 어려움</td></tr>
 <tr><td><strong>기획 근거</strong></td><td>비전문가 6명 설문으로 입력 부담과 신뢰 기준 탐색 · 공개 자료로 공급자 가설과 남은 리스크 점검</td></tr>
 <tr><td><strong>핵심 판단</strong></td><td>입력 부담을 낮추고, 추천 점수보다 <strong>추천 근거·진행 증거·합류 조건</strong>을 먼저 설계</td></tr>
+<tr><td><strong>협업 판단</strong></td><td>팀원이 제안한 서비스명 <strong>ORBIT</strong>을 채택하고, IA·화면정의서는 B2B 직무 경험을 가진 팀원의 조언을 반영해 수정</td></tr>
 <tr><td><strong>실행</strong></td><td>PRD → IA → User Flow → Wireframe → 화면정의서 → Prototype → 검증용 MVP 배포</td></tr>
 <tr><td><strong>과제 결과</strong></td><td>회원가입부터 프로젝트 구체화·후보 선택·초대·응답·합류 합의까지 핵심 여정 구현 · Vercel 배포</td></tr>
 </table>
 
 **핵심 흐름**　`아이디어 한 줄` → `프로젝트 구체화` → `후보 추천` → `초대·응답` → `궁합 확인` → `합류 합의`
 
-[**ORBIT 검증용 MVP 체험하기 →**](https://portfolio-dannylee.vercel.app/demo)
+#### 먼저 볼 자료
+
+1. [**로그인 없는 ORBIT 데모 →**](https://portfolio-dannylee.vercel.app/demo)　핵심 사용자 여정을 바로 체험할 수 있습니다.
+2. [**포트폴리오 PDF →**](https://portfolio-dannylee.vercel.app/file/IT_PM_Portfolio_LeeSeungjoo.pdf#page=8&view=FitH)　문제 정의부터 MVP까지의 판단 과정을 볼 수 있습니다.
+3. [**화면정의서 →**](https://docs.google.com/spreadsheets/d/1pbuwz1ufTGbICS8LN3hzoa8X7hSJLZJC/edit?usp=sharing&amp;ouid=102223352084121291107&amp;rtpof=true&amp;sd=true)　버튼·상태·오류까지 구현 기준을 확인할 수 있습니다.
+4. [**PRD →**](https://seungjoo-lee.notion.site/ORBIT-PRD_v2-1-1-39270ad10eed807b86a2c629999cb41e?source=copy_link) · [**IA →**](https://docs.google.com/spreadsheets/d/1JQs9eTeKOoI57Uw6eW30jp50jsUn18-s/edit?usp=sharing&amp;ouid=102223352084121291107&amp;rtpof=true&amp;sd=true) · [**User Flow →**](https://portfolio-dannylee.vercel.app/file/ORBIT_UserFlow_v1.1.html)　정의·구조·흐름의 연결을 확인할 수 있습니다.
 
 #### ORBIT 설계 판단
 
@@ -60,24 +66,11 @@
 <tr><td><strong>MVP 범위</strong></td><td>한 역할·한 후보·한 합의 흐름을 우선 구현</td></tr>
 </table>
 
+> **배운 점:** 가장 중요한 기능은 많이 만드는 것이 아니라, 사용자가 가치를 느끼는 순서와 데이터가 생기는 순서를 맞추는 것임을 배웠습니다.
+
 > ORBIT의 과제 성과는 실사용 수치가 아니라, 2개월 안에 문제 정의와 설계 문서, 프로토타입, 작동하는 MVP를 하나의 흐름으로 완성한 것입니다. 추천 결과와 데모 지표는 화면 검토를 위한 시나리오입니다.
 
-#### 기획 산출물
-
-<table width="100%">
-<tr>
-<th width="25%" align="center">정의</th>
-<th width="25%" align="center">구조·흐름</th>
-<th width="25%" align="center">화면·명세</th>
-<th width="25%" align="center">검증·구현</th>
-</tr>
-<tr>
-<td align="center"><a href="https://seungjoo-lee.notion.site/ORBIT-PRD_v2-1-1-39270ad10eed807b86a2c629999cb41e?source=copy_link">PRD v2.1.1</a></td>
-<td align="center"><a href="https://docs.google.com/spreadsheets/d/1JQs9eTeKOoI57Uw6eW30jp50jsUn18-s/edit?usp=sharing&amp;ouid=102223352084121291107&amp;rtpof=true&amp;sd=true">IA v2.1.1</a><br/><a href="https://portfolio-dannylee.vercel.app/file/ORBIT_UserFlow_v1.1.html">User Flow</a></td>
-<td align="center"><a href="https://portfolio-dannylee.vercel.app/file/ORBIT_Wireframe_Desktop_v1.1.html">Wireframe</a><br/><a href="https://docs.google.com/spreadsheets/d/1pbuwz1ufTGbICS8LN3hzoa8X7hSJLZJC/edit?usp=sharing&amp;ouid=102223352084121291107&amp;rtpof=true&amp;sd=true">화면 정의서</a></td>
-<td align="center"><a href="https://portfolio-dannylee.vercel.app/file/ORBIT_Prototype_Desktop_v2.0.html">Prototype</a><br/><a href="https://portfolio-dannylee.vercel.app">검증용 MVP</a></td>
-</tr>
-</table>
+**추가 설계 자료**　[Wireframe](https://portfolio-dannylee.vercel.app/file/ORBIT_Wireframe_Desktop_v1.1.html) · [Prototype](https://portfolio-dannylee.vercel.app/file/ORBIT_Prototype_Desktop_v2.0.html)
 
 ### 02. 임산부 불빛 배려석 · 공공 서비스 설계
 

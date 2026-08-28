@@ -101,9 +101,9 @@
 <th width="334" align="center">실행력 · 완결성</th>
 </tr>
 <tr>
-<td valign="top" align="center"><strong>잘못된 문제를 재정의</strong><br/><br/>해결책보다 먼저 "진짜 문제"를 고민했습니다.</td>
-<td valign="top" align="center"><strong>기획 의도에 맞게 문서 구현</strong><br/><br/>PRD·IA·UserFlow·화면정의서로 요구사항과 사용자 흐름을 정리했습니다.</td>
-<td valign="top" align="center"><strong>문서에서 MVP 검증까지</strong><br/><br/>사용자의 흐름과 MVP를 구현했습니다.</td>
+<td valign="top" align="center"><strong>잘못된 문제를 재정의</strong><br/>해결책보다 먼저 "진짜 문제"를 고민했습니다.</td>
+<td valign="top" align="center"><strong>기획 의도에 맞게 문서 구현</strong><br/>PRD·IA·UserFlow·화면정의서로 요구사항과 사용자 흐름을 정리했습니다.</td>
+<td valign="top" align="center"><strong>문서에서 MVP 검증까지</strong><br/>사용자의 흐름과 MVP를 구현했습니다.</td>
 </tr>
 </table>
 

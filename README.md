@@ -14,7 +14,7 @@
 
 ## 한눈에 보는 강점
 
-<table>
+<table width="100%">
 <tr>
 <td width="33%" align="center"><strong>🎯 문제 재정의</strong><br/><br/>표면의 현상보다<br/>행동을 만드는 구조를 봅니다.</td>
 <td width="33%" align="center"><strong>🔎 검증과 판단</strong><br/><br/>가장 위험한 가설부터 확인하고<br/>만들 것과 만들지 않을 것을 정합니다.</td>
@@ -35,7 +35,7 @@
 이 프로젝트의 목표는 실제 가입자나 매출을 만드는 것이 아니라, 제한된 기간 안에 **제품의 가설을 기획 문서와 MVP 화면으로 구현하는 것**이었습니다. 따라서 운영 성과가 아닌, 문제 정의부터 MVP까지의 논리적 연결과 완성도를 중점으로 봐주시면 감사하겠습니다.
 
 <table width="100%">
-<tr><th width="16%" align="center">구분</th><th align="center">내용</th></tr>
+<tr><th width="16%" align="center">구분</th><th width="84%" align="center">내용</th></tr>
 <tr><td align="center"><strong>담당</strong></td><td>3인 팀 프로젝트 리더 · 문제 정의, 서비스 구조, 핵심 사용자 여정 설계 주도</td></tr>
 <tr><td align="center"><strong>과제 목표</strong></td><td>막연한 아이디어가 필요한 역할과 팀원 선택, 합류 합의로 이어지는 플랫폼 흐름 설계</td></tr>
 <tr><td align="center"><strong>문제</strong></td><td>사용자는 필요한 역할을 설명하기 어렵고, 후보의 신뢰도와 합류 조건을 판단하기 어려움</td></tr>
@@ -58,7 +58,7 @@
 #### ORBIT 주요 설계
 
 <table width="100%">
-<tr><th width="22%" align="center">설계 영역</th><th align="center">적용 내용</th></tr>
+<tr><th width="22%" align="center">설계 영역</th><th width="78%" align="center">적용 내용</th></tr>
 <tr><td align="center"><strong>진입 경험</strong></td><td>첫 입력을 아이디어 한 줄로 줄여 초기 부담 최소화</td></tr>
 <tr><td align="center"><strong>신뢰 형성</strong></td><td>결과물 · 평판과 함께 “왜 맞는지” 추천 근거 제시</td></tr>
 <tr><td align="center"><strong>정보 보호</strong></td><td>후보 정보와 궁합 결과의 공개 시점을 단계별로 분리</td></tr>
@@ -77,7 +77,7 @@
 > 시민 의식의 문제가 아니라 **배려가 필요한 순간을 알 수 없게 만든 시스템이 문제**로 재정의했습니다.
 
 <table width="100%">
-<tr><th width="16%" align="center">구분</th><th align="center">내용</th></tr>
+<tr><th width="16%" align="center">구분</th><th width="84%" align="center">내용</th></tr>
 <tr><td align="center"><strong>역할</strong></td><td>문제 재정의 · 해결안 · 실행 설계 · 제안서 100% 단독 작성</td></tr>
 <tr><td align="center"><strong>문제</strong></td><td>상시 공석과 양보 실패가 반복되지만 운영은 개인의 선의와 눈치에 의존</td></tr>
 <tr><td align="center"><strong>핵심 판단</strong></td><td>좌석을 늘리는 대신 버튼과 불빛으로 <strong>필요한 순간만 보이게</strong> 설계</td></tr>

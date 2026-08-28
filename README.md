@@ -97,8 +97,8 @@
 </tr>
 <tr>
 <td valign="top"><strong>잘못된 문제부터 재정의 합니다.</strong><br/><br/>해결책보다 먼저 "진짜 문제"를 고민했습니다.</td>
-<td valign="top"><strong>기획 의도를 구현 가능한 문서로 구체화합니다.</strong><br/><br/>PRD · IA · User Flow · 화면정의서로 요구사항과 사용자 흐름을 정리했습니다.</td>
-<td valign="top"><strong>문서에서 멈추지 않습니다.</strong><br/><br/>사용자의 흐름과 MVP를 구현해 실제로 검증했습니다.</td>
+<td valign="top"><strong>기획 의도를 구현 가능한 문서로 구체화합니다.</strong><br/>PRD · IA · User Flow · 화면정의서로 요구사항과 사용자 흐름을 정리했습니다.</td>
+<td valign="top"><strong>문서에서 멈추지 않습니다.</strong><br/><br/>사용자의 흐름과 MVP를 구현했습니다.</td>
 </tr>
 </table>
 

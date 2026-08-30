@@ -1452,6 +1452,13 @@ body {
   line-height: 1.55;
 }
 
+.op-auth-card .op-cooldown-note {
+  margin: 10px 0 0;
+  color: #aab8d6;
+  font-size: 11px;
+  text-align: center;
+}
+
 .op-phone-row {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));

@@ -19,6 +19,27 @@ import {
 type CandidateId = "junyoung" | "seoyeon";
 type InviteStatus = "sent" | "opened" | "accepted" | "rejected" | null;
 type Notice = { id: number | string; title: string; detail: string; href: string };
+type AuthErrorLike = { code?: string; message: string; status?: number };
+
+const EMAIL_COOLDOWN_MS = 60_000;
+const EMAIL_COOLDOWN_KEY = "orbit-email-requested-at";
+
+function isEmailRateLimitError(error: AuthErrorLike) {
+  return error.status === 429
+    || error.code === "over_email_send_rate_limit"
+    || error.code === "over_request_rate_limit"
+    || /rate limit|too many requests/i.test(error.message);
+}
+
+function emailAuthErrorMessage(error: AuthErrorLike) {
+  if (isEmailRateLimitError(error)) {
+    return "인증 메일 요청이 많아요. 잠시 후 다시 시도해 주세요.";
+  }
+  if (error.code === "email_address_not_authorized") {
+    return "현재 이 이메일 주소로 인증 메일을 보낼 수 없어요.";
+  }
+  return "인증 메일을 보내지 못했습니다. 이메일 주소를 확인하고 다시 시도해 주세요.";
+}
 
 type OrbitState = {
   signedIn: boolean;
@@ -348,6 +369,24 @@ function Login() {
   const [socialNotice, setSocialNotice] = useState("");
   const [emailNotice, setEmailNotice] = useState("");
   const [loading, setLoading] = useState(false);
+  const [cooldownSeconds, setCooldownSeconds] = useState(0);
+
+  useEffect(() => {
+    const updateCooldown = () => {
+      const requestedAt = Number(window.sessionStorage.getItem(EMAIL_COOLDOWN_KEY) ?? 0);
+      const remaining = Math.max(0, Math.ceil((requestedAt + EMAIL_COOLDOWN_MS - Date.now()) / 1000));
+      setCooldownSeconds(remaining);
+      if (remaining === 0) window.sessionStorage.removeItem(EMAIL_COOLDOWN_KEY);
+    };
+    updateCooldown();
+    const timer = window.setInterval(updateCooldown, 1000);
+    return () => window.clearInterval(timer);
+  }, []);
+
+  const startEmailCooldown = () => {
+    window.sessionStorage.setItem(EMAIL_COOLDOWN_KEY, String(Date.now()));
+    setCooldownSeconds(60);
+  };
   const socialLogin = (provider: "Google" | "카카오") => {
     setError("");
     setSocialNotice(`${provider} 로그인은 준비 중입니다. 이메일 인증을 이용해 주세요.`);
@@ -358,6 +397,7 @@ function Login() {
   };
   const emailLogin = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    if (loading || cooldownSeconds > 0) return;
     if (!email.trim()) return setError("이메일 주소를 입력해 주세요.");
     setLoading(true);
     setError("");
@@ -366,7 +406,13 @@ function Login() {
     const requestedNext = new URLSearchParams(window.location.search).get("next");
     const nextPath = requestedNext?.startsWith("/") && !requestedNext.startsWith("//") ? requestedNext : "/enter";
     const { error: authError } = await signInWithMagicLink(email.trim(), `${window.location.origin}${nextPath}`);
-    if (authError) { setError(authError.message); setLoading(false); return; }
+    if (authError) {
+      if (isEmailRateLimitError(authError)) startEmailCooldown();
+      setError(emailAuthErrorMessage(authError));
+      setLoading(false);
+      return;
+    }
+    startEmailCooldown();
     setEmailNotice("인증 메일을 보냈습니다. 메일함에서 ORBIT 로그인 링크를 눌러 주세요.");
     setLoading(false);
   };
@@ -386,7 +432,8 @@ function Login() {
           <div className="op-email-fields"><input type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="name@example.com" autoComplete="email" /></div>
           {error && <p role="alert" className="op-form-error">{error}</p>}
           {emailNotice && <p role="status" className="op-form-notice">{emailNotice}</p>}
-          <Button type="submit" disabled={loading} className="full">{loading ? "인증 메일을 보내는 중..." : "인증 메일 받기"}</Button>
+          {cooldownSeconds > 0 && <p role="status" className="op-cooldown-note">재요청은 {cooldownSeconds}초 후 가능합니다.</p>}
+          <Button type="submit" disabled={loading || cooldownSeconds > 0} className="full">{loading ? "인증 메일을 보내는 중..." : cooldownSeconds > 0 ? `다시 받기 · ${cooldownSeconds}초` : "인증 메일 받기"}</Button>
         </form>
         <div className="op-legal-links"><button type="button" onClick={signupPending}>회원가입</button></div>
       </section>

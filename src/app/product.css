@@ -1025,6 +1025,16 @@
 .op-invite-list em { margin-left: auto; color: var(--op-supply); font-size: 10px; font-style: normal; font-weight: 800; }
 .op-preview h2 { margin: 8px 0; font-size: 22px; }
 .op-preview > p { color: var(--op-slate); font-size: 12px; line-height: 1.6; }
+.op-preview .op-sample-note {
+  margin: 14px 0 18px;
+  padding: 10px 12px;
+  border: 1px solid var(--op-supply-line);
+  border-radius: 7px;
+  color: var(--op-supply-dark);
+  background: var(--op-supply-bg);
+  font-size: 10px;
+  font-weight: 700;
+}
 .op-preview dl { margin: 18px 0; border-top: 1px solid var(--op-line); }
 .op-preview dl div { padding: 8px 0; display: grid; grid-template-columns: 90px 1fr; border-bottom: 1px solid var(--op-line-soft); font-size: 11px; }
 .op-preview dt { color: var(--op-muted); }

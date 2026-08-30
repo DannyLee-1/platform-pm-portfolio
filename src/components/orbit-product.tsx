@@ -35,6 +35,8 @@ type OrbitState = {
   rejectReason: string;
   answers: string[];
   registered: boolean;
+  displayName: string;
+  sampleInviteAvailable: boolean;
   verification: "not-started" | "pending" | "approved";
   role: string;
   interest: string;
@@ -67,6 +69,8 @@ const initialState: OrbitState = {
   rejectReason: "",
   answers: [],
   registered: false,
+  displayName: "",
+  sampleInviteAvailable: false,
   verification: "not-started",
   role: "",
   interest: "",
@@ -103,6 +107,55 @@ const candidates = {
   },
 } as const;
 
+const supplierSampleInvite = {
+  title: "케어메이트, 가족 돌봄을 함께 기록하다",
+  summary: "가족과 돌봄 제공자가 일정과 특이사항을 공유하는 서비스",
+  senderName: "한유진",
+  senderInitials: "유진",
+  expires: "7일",
+} as const;
+
+function normalizeDisplayName(value?: string | null) {
+  const name = value?.trim() ?? "";
+  return name.includes("@") ? "" : name;
+}
+
+function displayInitials(name: string) {
+  const compact = name.replace(/\s+/g, "");
+  return compact.length > 1 ? compact.slice(-2) : compact || "나";
+}
+
+function isSupplierSample(state: OrbitState) {
+  return state.side === "supply" && state.sampleInviteAvailable && !state.invitationId;
+}
+
+function activeCandidate(state: OrbitState) {
+  if (state.side === "supply") {
+    const name = normalizeDisplayName(state.displayName) || "등록한 팀원";
+    return {
+      name,
+      initials: displayInitials(name),
+      meta: `${state.role || "역할 미등록"}${state.interest ? ` · ${state.interest}` : ""}`,
+      axes: ["역할 높음", "도메인 보통", "베팅 높음"],
+      weak: "보완점 · 첫 협업에서 역할과 시간을 구체화해야 해요.",
+      why: state.proofDescription || "등록한 역할과 결과물을 바탕으로 초대가 연결됐어요.",
+      scores: [86, 78, 84] as const,
+      proof: [
+        state.proofDescription || "등록한 결과물 검증 대기",
+        state.interest ? `${state.interest} 관심 · ${state.role || "역할"}` : state.role || "역할 검증 대기",
+      ],
+    };
+  }
+  return candidates[state.selected ?? "junyoung"];
+}
+
+function supplierSampleQuestions(state: OrbitState) {
+  return [
+    "돌봄 일정 공유에서 가장 먼저 검증해야 할 핵심 사용자 흐름은 무엇이라고 생각하나요?",
+    `${state.role || "등록한 역할"} 담당으로 6주 안에 만들 첫 버전의 범위와 참여 가능한 시간을 알려주세요.`,
+  ];
+}
+
 const protectedScreens = new Set([
   "enter", "start", "translating", "project", "select", "invite", "register",
   "inbox", "respond", "match", "agreement", "handoff", "home", "home/projects",
@@ -112,7 +165,7 @@ const protectedScreens = new Set([
 function prerequisitePath(screen: string, state: OrbitState) {
   if (["translating", "project", "select"].includes(screen) && !state.idea.trim()) return "/start";
   if (screen === "invite" && !state.selected) return state.idea.trim() ? "/select" : "/start";
-  if (screen === "respond" && state.inviteStatus === null) return "/inbox";
+  if (screen === "respond" && state.inviteStatus === null && !isSupplierSample(state)) return "/inbox";
   if (["match", "agreement"].includes(screen) && state.inviteStatus !== "accepted") return "/inbox";
   if (screen === "handoff" && (!state.agreementDemand || !state.agreementSupply)) return "/agreement";
   return null;
@@ -356,13 +409,11 @@ function Signup() {
 
 function Enter({
   state,
-  update,
   go,
   beginDemand,
   beginSupply,
 }: {
   state: OrbitState;
-  update: (patch: Partial<OrbitState>) => void;
   go: (path: string) => void;
   beginDemand: () => void;
   beginSupply: () => void;
@@ -386,10 +437,9 @@ function Enter({
         </div>
         {showSupplier && (
           <section className="op-onboard">
-            <div><span className="op-kicker supply">팀원 프로필</span><h2>역할과 관심 분야</h2></div>
-            <label>주 역할<select value={state.role} onChange={(event) => update({ role: event.target.value })}><option value="">역할 선택</option><option>개발 (프론트엔드)</option><option>개발 (백엔드)</option><option>디자인</option><option>기획</option></select></label>
-            <label>관심 분야<input value={state.interest} onChange={(event) => update({ interest: event.target.value })} placeholder="관심 분야를 입력하세요" /></label>
-            <Button tone="supply" disabled={!state.role || !state.interest.trim()} onClick={() => go("/register")}>등록 이어가기 →</Button>
+            <div><span className="op-kicker supply">팀원 프로필</span><h2>내 정보로 합류를 시작하세요</h2></div>
+            <p>등록 과정에서 이름·역할·관심 분야를 입력합니다. 입력한 이름은 마이페이지와 받은 초대에 그대로 표시됩니다.</p>
+            <Button tone="supply" onClick={() => go("/register")}>{state.registered ? "프로필 확인하기 →" : "프로필 등록하기 →"}</Button>
           </section>
         )}
       </div>
@@ -705,9 +755,9 @@ function Register({
       <ProductHeader context="팀원 등록 · 최초 1회" tone="supply" />
       <div className="op-container op-register">
         <div className="op-wizard">
-          {["역할", "실력 증명", "베팅 의향", "필수 동의"].map((label, index) => <span className={step >= index + 1 ? "on" : ""} key={label}><i>{index + 1}</i>{label}</span>)}
+          {["기본 정보", "실력 증명", "베팅 의향", "필수 동의"].map((label, index) => <span className={step >= index + 1 ? "on" : ""} key={label}><i>{index + 1}</i>{label}</span>)}
         </div>
-        {step === 1 && <section className="op-form-stage"><span className="op-kicker supply">1/4</span><h1>어떤 역할로 합류하나요?</h1><label>주 역할<select value={state.role} onChange={(event) => update({ role: event.target.value })}><option value="">역할 선택</option><option>개발 (프론트엔드)</option><option>개발 (백엔드)</option><option>디자인</option><option>기획</option></select></label><label>관심 분야<input value={state.interest} onChange={(event) => update({ interest: event.target.value })} placeholder="관심 분야를 입력하세요" /></label><Button tone="supply" disabled={!state.role || !state.interest.trim()} onClick={() => setStep(2)}>다음</Button></section>}
+        {step === 1 && <section className="op-form-stage"><span className="op-kicker supply">1/4</span><h1>이름과 역할을 알려주세요</h1><p className="op-lead">입력한 정보는 마이페이지와 초대 화면에 사용됩니다.</p><label>이름<input value={state.displayName} onChange={(event) => update({ displayName: event.target.value })} placeholder="실명을 입력하세요" autoComplete="name" /></label><label>주 역할<select value={state.role} onChange={(event) => update({ role: event.target.value })}><option value="">역할 선택</option><option>개발 (프론트엔드)</option><option>개발 (백엔드)</option><option>디자인</option><option>기획</option></select></label><label>관심 분야<input value={state.interest} onChange={(event) => update({ interest: event.target.value })} placeholder="예: 돌봄, 커뮤니티, 교육" /></label><Button tone="supply" disabled={!state.displayName.trim() || !state.role || !state.interest.trim()} onClick={() => setStep(2)}>다음</Button></section>}
         {step === 2 && <section className="op-form-stage"><span className="op-kicker supply">2/4</span><h1>결과물을 등록하세요</h1><p className="op-lead">결과물과 평판을 확인합니다.</p><label>포트폴리오 또는 결과물 링크<input type="text" value={state.proof} onChange={(event) => update({ proof: event.target.value })} placeholder="포트폴리오 주소를 입력하세요" /></label><label>한 줄 설명 (선택)<textarea value={state.proofDescription} onChange={(event) => update({ proofDescription: event.target.value })} rows={3} placeholder="맡은 역할과 결과를 적어주세요." /></label><div className="op-actions"><Button tone="ghost" onClick={() => setStep(1)}>이전</Button><Button tone="supply" disabled={!state.proof.trim()} onClick={() => setStep(3)}>다음</Button></div></section>}
         {step === 3 && <section className="op-form-stage"><span className="op-kicker supply">3/4</span><h1>보상 방식을 선택하세요</h1><div className="op-choice-stack"><button className={state.betting === "equity" ? "selected" : ""} onClick={() => { update({ betting: "equity" }); track("betting_intent_set", "equity"); }}><b>지분·성과 배분</b><span>성과를 함께 나눕니다.</span></button><button className={state.betting === "paid" ? "selected" : ""} onClick={() => { update({ betting: "paid" }); track("self_select_exit", "paid"); }}><b>선보수 필요</b><span>외주 플랫폼이 더 적합할 수 있습니다.</span></button></div>{state.betting === "paid" && <p className="op-soft-warning">ORBIT은 성과 배분형 팀원을 위한 서비스입니다. 등록은 계속할 수 있습니다.</p>}<div className="op-actions"><Button tone="ghost" onClick={() => setStep(2)}>이전</Button><Button tone="supply" disabled={!state.betting} onClick={() => setStep(4)}>다음</Button></div></section>}
         {step === 4 && <section className="op-form-stage"><span className="op-kicker supply">4/4</span><h1>필수 항목에 동의하세요</h1><p className="op-lead">직접 동의해야 신청할 수 있습니다.</p><label className="op-check"><input type="checkbox" checked={nda} onChange={(event) => setNda(event.target.checked)} /><span>지적재산권 귀속·비밀유지에 동의합니다<small>아이디어를 외부에 공개하거나 무단 사용하지 않습니다.</small></span></label><label className="op-check"><input type="checkbox" checked={privacy} onChange={(event) => setPrivacy(event.target.checked)} /><span>등록 데이터 수집·이용에 동의합니다<small>수락 후 상세 프로필이 공개됩니다.</small></span></label><div className="op-actions"><Button tone="ghost" onClick={() => setStep(3)}>이전</Button><Button tone="supply" disabled={!nda || !privacy} onClick={finish}>ORBIT 검증 신청</Button></div></section>}
@@ -717,8 +767,14 @@ function Register({
 }
 
 function Inbox({ state, go }: { state: OrbitState; go: (path: string) => void }) {
-  const hasInvite = state.inviteStatus !== null;
-  const candidate = candidates[state.selected ?? "junyoung"];
+  const sample = isSupplierSample(state);
+  const hasInvite = state.inviteStatus !== null || sample;
+  const candidate = activeCandidate(state);
+  const inviteTitle = sample ? supplierSampleInvite.title : "모임온, 동네 취향을 잇다";
+  const inviteSummary = sample ? supplierSampleInvite.summary : "소모임 빈자리 매칭 플랫폼";
+  const senderName = sample ? supplierSampleInvite.senderName : "김다솔";
+  const senderInitials = sample ? supplierSampleInvite.senderInitials : "다솔";
+  const role = sample ? state.role || "서비스 기획" : "개발";
   return (
     <main className="op-page supply-bg">
       <ProductHeader context="받은 ORBIT 초대" tone="supply" />
@@ -728,7 +784,7 @@ function Inbox({ state, go }: { state: OrbitState; go: (path: string) => void })
           <div><b>이 페이지는 프로젝트 초대를 받은 팀원에게 보여집니다.</b><p>받은 초대와 응답 상태는 로그인 후 마이페이지의 ‘합류’에서 다시 확인할 수 있어요.</p></div>
         </aside>
         <div className="op-title-row"><div><span className="op-kicker supply">팀원 합류</span><h1>받은 초대</h1></div><span className={`op-status ${state.verification}`}>{state.verification === "pending" ? "실력 검증 대기" : state.verification === "approved" ? "실력 인증 승인" : "등록 전"}</span></div>
-        {!hasInvite ? <section className="op-empty"><span>0</span><h2>도착한 초대가 없어요</h2><p>도착하면 알림에서 확인할 수 있습니다.</p><Button tone="ghost" onClick={() => go("/home/invites")}>합류 현황 보기</Button></section> : <div className="op-inbox-grid"><section className="op-invite-list"><button className="active"><span className="op-person demand">다솔</span><span><b>모임온, 동네 취향을 잇다</b><small>개발 · 보낸 사람 김다솔</small></span><em>{inviteStatusLabel(state.inviteStatus)}</em></button></section><aside className="op-preview"><span className="op-kicker supply">초대 내용</span><h2>모임온, 동네 취향을 잇다</h2><p>소모임 빈자리 매칭 플랫폼</p><dl><div><dt>필요 역할</dt><dd>개발</dd></div><div><dt>받는 팀원</dt><dd>{candidate.name}</dd></div><div><dt>유효기간</dt><dd>7일</dd></div></dl><Button tone="supply" onClick={() => { track("invite_opened"); go("/respond"); }}>{state.inviteStatus === "sent" ? "초대 열기" : "응답 화면 보기"}</Button></aside></div>}
+        {!hasInvite ? <section className="op-empty"><span>0</span><h2>도착한 초대가 없어요</h2><p>도착하면 알림에서 확인할 수 있습니다.</p><Button tone="ghost" onClick={() => go("/home/invites")}>합류 현황 보기</Button></section> : <div className="op-inbox-grid"><section className="op-invite-list"><button className="active"><span className="op-person demand">{senderInitials}</span><span><b>{inviteTitle}</b><small>{role} · 보낸 사람 {senderName}</small></span><em>{sample ? "MVP 예시" : inviteStatusLabel(state.inviteStatus)}</em></button></section><aside className="op-preview"><span className="op-kicker supply">{sample ? "MVP 예시 초대" : "초대 내용"}</span><h2>{inviteTitle}</h2><p>{inviteSummary}</p><dl><div><dt>필요 역할</dt><dd>{role}</dd></div><div><dt>받는 팀원</dt><dd>{candidate.name}</dd></div><div><dt>유효기간</dt><dd>{sample ? supplierSampleInvite.expires : "7일"}</dd></div></dl>{sample && <p className="op-sample-note">등록한 프로필로 응답 흐름을 확인할 수 있는 포트폴리오용 예시 초대입니다.</p>}<Button tone="supply" onClick={() => { track("invite_opened", sample ? "sample" : "saved"); go("/respond"); }}>{state.inviteStatus === "sent" || sample ? "초대 열기" : "응답 화면 보기"}</Button></aside></div>}
       </div>
     </main>
   );
@@ -753,13 +809,18 @@ function Respond({
   const [answers, setAnswers] = useState(() => [state.answers[0] ?? "", state.answers[1] ?? "", state.answers[2] ?? ""]);
   const [rejectOpen, setRejectOpen] = useState(false);
   const [reason, setReason] = useState("");
-  const questions = [
+  const sample = isSupplierSample(state);
+  const questions = sample ? supplierSampleQuestions(state) : [
     orbitQuestions[0],
     orbitQuestions[1],
     state.q3,
   ].filter(Boolean);
   const ready = questions.every((_, index) => answers[index].trim().length >= 2);
-  const fill = () => setAnswers([
+  const fill = () => setAnswers(sample ? [
+    "가족 초대부터 돌봄 일정 등록, 변경 알림 확인까지의 흐름을 먼저 검증하겠습니다.",
+    `첫 버전은 일정 공유와 특이사항 기록에 집중하고, ${state.role || "담당"} 역할로 주 8시간 참여할 수 있습니다.`,
+    "",
+  ] : [
     "동네 모임 운영자 10명을 직접 만나 초기 공급자와 첫 접점을 만들겠습니다.",
     "모임 등록과 참여 신청만 남기고 추천과 결제는 수동 운영으로 검증하겠습니다.",
     "당장의 보수보다 제 지분이 남는 판인지가 더 중요합니다.",
@@ -769,7 +830,7 @@ function Respond({
       <ProductHeader context="초대에 답하기" tone="supply" />
       <div className="op-container">
         <aside className="op-viewer-notice compact"><span>초대받은 팀원 화면</span><p>보낸 사람의 질문에 답한 뒤 합류 여부를 선택하는 단계입니다.</p></aside>
-        <span className="op-kicker supply">모임온 · 개발</span><h1>질문에 답하고 합류를 선택하세요</h1>
+        <span className="op-kicker supply">{sample ? `${supplierSampleInvite.title} · ${state.role || "서비스 기획"}` : "모임온 · 개발"}</span><h1>질문에 답하고 합류를 선택하세요</h1>
         <p className="op-lead">답변 후 최종 궁합이 공개됩니다.</p>
         <div className="op-respond-grid">
           <section className="op-question-list">
@@ -789,7 +850,8 @@ function Respond({
 }
 
 function Match({ state, go }: { state: OrbitState; go: (path: string) => void }) {
-  const candidate = candidates[state.selected ?? "junyoung"];
+  const candidate = activeCandidate(state);
+  const sample = isSupplierSample(state);
   useEffect(() => { track("match_result_view", candidate.scores.join(",")); }, [candidate]);
   return (
     <main className="op-page join-bg">
@@ -797,14 +859,14 @@ function Match({ state, go }: { state: OrbitState; go: (path: string) => void })
       <div className="op-container op-match">
         <span className="op-kicker join">최종 궁합</span>
         <h1>궁합 결과</h1>
-        <p className="op-lead">김다솔 × {candidate.name} · 모임온 프로젝트</p>
+        <p className="op-lead">{sample ? supplierSampleInvite.senderName : "김다솔"} × {candidate.name} · {sample ? supplierSampleInvite.title : "모임온 프로젝트"}</p>
         <div className="op-score-grid">
-          {candidate.scores.map((score, index) => <article key={score}><div className={`op-gauge g${index + 1}`} style={{ "--score": `${score * 3.6}deg` } as React.CSSProperties}><span>{score}<small>%</small></span></div><b>{["역할 적합도", "도메인 적합도", "베팅 의향"][index]}</b><small>{["결과물 · 답변 기반", "로컬 플랫폼 운영 이해", "지분 · 성과 수용"][index]}</small></article>)}
+          {candidate.scores.map((score, index) => <article key={score}><div className={`op-gauge g${index + 1}`} style={{ "--score": `${score * 3.6}deg` } as React.CSSProperties}><span>{score}<small>%</small></span></div><b>{["역할 적합도", "도메인 적합도", "베팅 의향"][index]}</b><small>{["결과물 · 답변 기반", sample ? "돌봄 서비스 관심도" : "로컬 플랫폼 운영 이해", "지분 · 성과 수용"][index]}</small></article>)}
         </div>
-        <section className="op-final-why"><h2>궁합 근거</h2><p><b>역할 {candidate.scores[0]}%</b> 화면 구현 경험이 맞습니다. <b>베팅 {candidate.scores[2]}%</b> 성과 배분 의향이 같습니다. <b>도메인 {candidate.scores[1]}%</b> 첫 기관 검증으로 경험을 보완합니다.</p></section>
+        <section className="op-final-why"><h2>궁합 근거</h2><p><b>역할 {candidate.scores[0]}%</b> {sample ? `${state.role || "등록 역할"} 경험과 결과물이 필요 역할에 맞습니다.` : "화면 구현 경험이 맞습니다."} <b>베팅 {candidate.scores[2]}%</b> 성과 배분 의향이 같습니다. <b>도메인 {candidate.scores[1]}%</b> {sample ? "등록한 관심 분야와 답변을 함께 반영했습니다." : "첫 기관 검증으로 경험을 보완합니다."}</p></section>
         <h2 className="op-small-heading">상세 프로필</h2>
         <div className="op-profile-pair">
-          <article><div><span className="op-person demand">다솔</span><span><b>김다솔</b><small>5년 차 커뮤니티 운영자 · 수요</small></span></div><ul><li>지역 소모임 운영과 참여자 모집 경험 5년</li><li>첫 프로젝트 · 검증 우선, 지분 협의 가능</li></ul></article>
+          <article><div><span className="op-person demand">{sample ? supplierSampleInvite.senderInitials : "다솔"}</span><span><b>{sample ? supplierSampleInvite.senderName : "김다솔"}</b><small>{sample ? "가족 돌봄 서비스 기획 · 수요" : "5년 차 커뮤니티 운영자 · 수요"}</small></span></div><ul>{sample ? <><li>가족 돌봄 일정과 특이사항 공유 문제 정의</li><li>6주 MVP · 역할과 보상 조건 협의 가능</li></> : <><li>지역 소모임 운영과 참여자 모집 경험 5년</li><li>첫 프로젝트 · 검증 우선, 지분 협의 가능</li></>}</ul></article>
           <article><div><span className="op-person supply">{candidate.initials}</span><span><b>{candidate.name}</b><small>{candidate.meta} · 공급</small></span></div><ul>{candidate.proof.map((item) => <li key={item}>{item}</li>)}</ul></article>
         </div>
         <Button tone="join" onClick={() => go("/agreement")}>합류 합의로 진행</Button>
@@ -825,19 +887,23 @@ function Agreement({
   sign: (side: "demand" | "supply") => void;
 }) {
   const both = state.agreementDemand && state.agreementSupply;
+  const sample = isSupplierSample(state);
+  const supplier = activeCandidate(state);
+  const demandName = sample ? supplierSampleInvite.senderName : "김다솔";
+  const role = sample ? state.role || "서비스 기획" : "개발 (프론트엔드 리드)";
   return (
     <main className="op-page join-bg">
       <ProductHeader context="ORBIT 완료 · 합류 합의" tone="join" />
       <div className="op-container">
         <span className="op-kicker join">양쪽 동의</span><h1>합류 합의</h1>
         <p className="op-lead">역할·기여·보상을 확인하세요. 계약과 정산은 직접 진행합니다.</p>
-        <div className="op-agreement-fields"><label>역할<input value="개발 (프론트엔드 리드)" readOnly /></label><label>기여 조건<input value={state.agreementContribution} onChange={(event) => update({ agreementContribution: event.target.value })} /></label><label>보상 · 지분 조건<input value={state.agreementCompensation} onChange={(event) => update({ agreementCompensation: event.target.value })} /></label></div>
+        <div className="op-agreement-fields"><label>역할<input value={role} readOnly /></label><label>기여 조건<input value={state.agreementContribution} onChange={(event) => update({ agreementContribution: event.target.value })} /></label><label>보상 · 지분 조건<input value={state.agreementCompensation} onChange={(event) => update({ agreementCompensation: event.target.value })} /></label></div>
         <div className="op-sign-grid">
-          <Button tone="join" className={state.agreementDemand ? "signed" : ""} onClick={() => sign("demand")} disabled={state.agreementDemand}>{state.agreementDemand ? "✓ 김다솔 동의함" : "수요자 동의 · 김다솔"}</Button>
-          <Button tone="join" className={state.agreementSupply ? "signed" : ""} onClick={() => sign("supply")} disabled={state.agreementSupply}>{state.agreementSupply ? `✓ ${candidates[state.selected ?? "junyoung"].name} 동의함` : `공급자 동의 · ${candidates[state.selected ?? "junyoung"].name}`}</Button>
+          <Button tone="join" className={state.agreementDemand ? "signed" : ""} onClick={() => sign("demand")} disabled={state.agreementDemand}>{state.agreementDemand ? `✓ ${demandName} 동의함` : `수요자 동의 · ${demandName}`}</Button>
+          <Button tone="join" className={state.agreementSupply ? "signed" : ""} onClick={() => sign("supply")} disabled={state.agreementSupply}>{state.agreementSupply ? `✓ ${supplier.name} 동의함` : `공급자 동의 · ${supplier.name}`}</Button>
         </div>
         {!both && <p className="op-wait-note">상대 동의 대기 · 7일 뒤 만료 · 동의 후 철회 불가</p>}
-        {both && <section className="op-complete"><h2>ORBIT 완료</h2><p>개발 역할의 합류 합의가 완료되었습니다.</p></section>}
+        {both && <section className="op-complete"><h2>ORBIT 완료</h2><p>{role} 역할의 합류 합의가 완료되었습니다.</p></section>}
         {both && <Button tone="join" onClick={() => go("/handoff")}>협업 채널 연결로 →</Button>}
       </div>
     </main>
@@ -878,7 +944,8 @@ function AppShell({
 }) {
   const done = state.agreementDemand && state.agreementSupply;
   const inProgress = state.idea && !done ? 1 : 0;
-  const waiting = state.inviteStatus === "sent" || state.inviteStatus === "opened" ? 1 : 0;
+  const memberName = normalizeDisplayName(state.displayName);
+  const waiting = state.inviteStatus === "sent" || state.inviteStatus === "opened" || isSupplierSample(state) ? 1 : 0;
   return (
     <main className="op-shell">
       <aside className="op-sidebar">
@@ -891,10 +958,10 @@ function AppShell({
           <ProductLink className={screen === "notifications" ? "active" : ""} href="/notifications">알림{state.notices.length > 0 && <em>{state.notices.length}</em>}</ProductLink>
           <button onClick={logout}>{demo ? "홈으로" : "로그아웃"}</button>
         </nav>
-        <div className="op-sidebar-user"><span className="op-avatar">나</span><div><b>김다솔</b><small>ORBIT 멤버</small></div></div>
+        <div className="op-sidebar-user"><span className="op-avatar">{memberName ? displayInitials(memberName).slice(-1) : "나"}</span><div><b>{memberName || "이름 미등록"}</b><small>{state.side === "supply" ? "ORBIT 팀원" : "ORBIT 멤버"}</small></div></div>
       </aside>
       <section className="op-shell-main">
-        {screen === "home" && <Dashboard inProgress={inProgress ? 1 : 0} done={done ? 1 : 0} waiting={waiting ? 1 : 0} go={go} />}
+        {screen === "home" && <Dashboard memberName={memberName} inProgress={inProgress ? 1 : 0} done={done ? 1 : 0} waiting={waiting ? 1 : 0} go={go} />}
         {screen === "home/projects" && <Projects state={state} done={done} go={go} beginDemand={beginDemand} />}
         {screen === "home/invites" && <Invites state={state} go={go} />}
         {screen === "profile" && <Profile state={state} go={go} beginSupply={beginSupply} />}
@@ -904,8 +971,8 @@ function AppShell({
   );
 }
 
-function Dashboard({ inProgress, done, waiting, go }: { inProgress: number; done: number; waiting: number; go: (path: string) => void }) {
-  return <><span className="op-kicker">내 활동</span><h1>안녕하세요, 다솔 님</h1><div className="op-summary-grid"><article><strong>{inProgress}</strong><span>진행중</span></article><article><strong>{done}</strong><span>합의 완료</span></article><article><strong>{waiting}</strong><span>대기</span></article></div><h2 className="op-shell-heading">바로 가기</h2><div className="op-shortcuts"><button onClick={() => go("/home/projects")}><b>팀 만들기</b><span>프로젝트와 초대 현황</span><em>→</em></button><button onClick={() => go("/home/invites")}><b>합류</b><span>받은 초대와 응답</span><em>→</em></button></div></>;
+function Dashboard({ memberName, inProgress, done, waiting, go }: { memberName: string; inProgress: number; done: number; waiting: number; go: (path: string) => void }) {
+  return <><span className="op-kicker">내 활동</span><h1>{memberName ? `안녕하세요, ${memberName} 님` : "안녕하세요!"}</h1>{!memberName && <p className="op-lead">팀원 등록에서 이름과 역할을 입력하면 내 정보가 여기에 표시됩니다.</p>}<div className="op-summary-grid"><article><strong>{inProgress}</strong><span>진행중</span></article><article><strong>{done}</strong><span>합의 완료</span></article><article><strong>{waiting}</strong><span>대기</span></article></div><h2 className="op-shell-heading">바로 가기</h2><div className="op-shortcuts"><button onClick={() => go("/home/projects")}><b>팀 만들기</b><span>프로젝트와 초대 현황</span><em>→</em></button><button onClick={() => go("/home/invites")}><b>합류</b><span>받은 초대와 응답</span><em>→</em></button></div></>;
 }
 
 function Projects({ state, done, go, beginDemand }: { state: OrbitState; done: boolean; go: (path: string) => void; beginDemand: () => void }) {
@@ -913,12 +980,15 @@ function Projects({ state, done, go, beginDemand }: { state: OrbitState; done: b
 }
 
 function Invites({ state, go }: { state: OrbitState; go: (path: string) => void }) {
-  return <><span className="op-kicker supply">초대</span><h1>합류</h1><h2 className="op-shell-heading">받은 ORBIT 초대</h2>{state.inviteStatus ? <article className="op-list-row"><span className="op-person demand">다솔</span><div><b>모임온, 동네 취향을 잇다</b><small>개발 · 보낸 사람 김다솔</small></div><em className={`op-status ${state.inviteStatus}`}>{inviteStatusLabel(state.inviteStatus)}</em><Button tone="ghost" onClick={() => go("/inbox")}>수신함</Button></article> : <EmptyInline text="받은 초대가 없어요." />}</>;
+  const sample = isSupplierSample(state);
+  const hasInvite = state.inviteStatus !== null || sample;
+  return <><span className="op-kicker supply">초대</span><h1>합류</h1><h2 className="op-shell-heading">받은 ORBIT 초대</h2>{hasInvite ? <article className="op-list-row"><span className="op-person demand">{sample ? supplierSampleInvite.senderInitials : "다솔"}</span><div><b>{sample ? supplierSampleInvite.title : "모임온, 동네 취향을 잇다"}</b><small>{sample ? `${state.role || "서비스 기획"} · 보낸 사람 ${supplierSampleInvite.senderName}` : "개발 · 보낸 사람 김다솔"}</small></div><em className={`op-status ${sample ? "sent" : state.inviteStatus}`}>{sample ? "MVP 예시" : inviteStatusLabel(state.inviteStatus)}</em><Button tone="ghost" onClick={() => go("/inbox")}>수신함</Button></article> : <EmptyInline text="받은 초대가 없어요." />}</>;
 }
 
 function Profile({ state, go, beginSupply }: { state: OrbitState; go: (path: string) => void; beginSupply: () => void }) {
   const bettingLabel = state.betting === "paid" ? "선보수 필요" : state.betting === "equity" ? "지분·성과 배분 수용" : "미등록";
-  return <><span className="op-kicker supply">팀원 프로필</span><h1>프로필 · 인증</h1><p className="op-lead">수락 후 상세 프로필을 공개합니다.</p><div className="op-profile-layout"><article className="op-profile-card"><div><span className="op-person supply">준영</span><span><b>박준영</b><small>{state.role || "역할 미등록"} · 8년 차</small></span><em className={`op-status ${state.verification}`}>{state.verification === "pending" ? "검증 대기" : state.verification === "approved" ? "인증 승인" : "미신청"}</em></div><h2>베팅 의향</h2><p>{bettingLabel} · 본업 병행</p><h2>프로필 공개 범위</h2><p>간단: 역할·수준·보완점<br />상세: 이름·결과물·이력 (수락 후)</p><Button tone="ghost" onClick={() => { beginSupply(); go("/register"); }}>{state.registered ? "프로필 다시 등록" : "프로필 등록"}</Button></article><aside><article className="op-plan-card"><b>인증 상태</b><p>결과물과 평판을 확인합니다. 반려 시 재신청할 수 있습니다.</p></article></aside></div></>;
+  const name = normalizeDisplayName(state.displayName);
+  return <><span className="op-kicker supply">팀원 프로필</span><h1>프로필 · 인증</h1><p className="op-lead">수락 후 상세 프로필을 공개합니다.</p><div className="op-profile-layout"><article className="op-profile-card"><div><span className="op-person supply">{displayInitials(name)}</span><span><b>{name || "이름 미등록"}</b><small>{state.role || "역할 미등록"}{state.interest ? ` · ${state.interest}` : ""}</small></span><em className={`op-status ${state.verification}`}>{state.verification === "pending" ? "검증 대기" : state.verification === "approved" ? "인증 승인" : "미신청"}</em></div><h2>베팅 의향</h2><p>{bettingLabel} · 본업 병행</p><h2>프로필 공개 범위</h2><p>간단: 역할·수준·보완점<br />상세: 이름·결과물·이력 (수락 후)</p><Button tone="ghost" onClick={() => { beginSupply(); go("/register"); }}>{state.registered ? "프로필 다시 등록" : "프로필 등록"}</Button></article><aside><article className="op-plan-card"><b>인증 상태</b><p>결과물과 평판을 확인합니다. 반려 시 재신청할 수 있습니다.</p></article></aside></div></>;
 }
 
 function Notifications({ state }: { state: OrbitState }) {
@@ -970,6 +1040,7 @@ export function OrbitProduct({
       answers: [],
       agreementDemand: false,
       agreementSupply: false,
+      sampleInviteAvailable: false,
       agreementContribution: initialState.agreementContribution,
       agreementCompensation: initialState.agreementCompensation,
     });
@@ -979,11 +1050,19 @@ export function OrbitProduct({
   const beginSupply = () => {
     update({
       side: "supply",
-      role: "",
-      interest: "",
-      proof: "",
-      proofDescription: "",
-      betting: null,
+      projectId: null,
+      invitationId: null,
+      matchId: null,
+      agreementId: null,
+      idea: "",
+      selected: null,
+      q3: "",
+      inviteStatus: null,
+      rejectReason: "",
+      answers: [],
+      sampleInviteAvailable: state.registered,
+      agreementDemand: false,
+      agreementSupply: false,
     });
     track("enter_side_selected", "supply");
   };
@@ -1036,7 +1115,7 @@ export function OrbitProduct({
       try {
         const [workflow, profileResult, noticeResult] = await Promise.all([
           loadLatestWorkflow(client, data.user.id),
-          client.from("profiles").select("role,interest,proof_url,proof_summary,betting_intent,verification_status").eq("id", data.user.id).maybeSingle(),
+          client.from("profiles").select("display_name,role,interest,proof_url,proof_summary,betting_intent,verification_status").eq("id", data.user.id).maybeSingle(),
           client.from("notifications").select("id,title,detail,href").eq("user_id", data.user.id).order("created_at", { ascending: false }).limit(20),
         ]);
         if (profileResult.error) throw profileResult.error;
@@ -1048,6 +1127,8 @@ export function OrbitProduct({
           ...workflow,
           side: current.side ?? (workflow.projectId ? "demand" : profile?.role ? "supply" : null),
           registered: Boolean(profile?.role),
+          displayName: normalizeDisplayName(profile?.display_name),
+          sampleInviteAvailable: Boolean(profile?.role) && !workflow.invitationId,
           verification: profile?.verification_status ?? "not-started",
           role: profile?.role ?? "",
           interest: profile?.interest ?? "",
@@ -1143,7 +1224,8 @@ export function OrbitProduct({
     go("/inbox");
   };
   const finishRegister = async () => {
-    if (!state.role || !state.interest.trim() || !state.proof.trim() || !state.betting) {
+    const displayName = normalizeDisplayName(state.displayName);
+    if (!displayName || !state.role || !state.interest.trim() || !state.proof.trim() || !state.betting) {
       toast("필수 입력을 확인해 주세요.");
       return;
     }
@@ -1156,6 +1238,7 @@ export function OrbitProduct({
         return;
       }
       const { error } = await client.from("profiles").update({
+        display_name: displayName,
         role: state.role,
         interest: state.interest,
         proof_url: state.proof.trim(),
@@ -1168,7 +1251,7 @@ export function OrbitProduct({
         return;
       }
     }
-    update({ registered: true, verification: "pending" });
+    update({ displayName, registered: true, verification: "pending", sampleInviteAvailable: true, inviteStatus: null });
     track("supplier_register_complete");
     toast("검증 신청 완료 · 운영자 확인 전까지 검증 대기로 표시돼요.");
     go("/home/invites");
@@ -1185,8 +1268,9 @@ export function OrbitProduct({
   };
   const acceptInvite = async (answers: string[]) => {
     const selected = state.selected ?? "junyoung";
+    const sample = isSupplierSample(state);
     let matchId = state.matchId;
-    if (!demo) {
+    if (!demo && !sample) {
       const client = supabase;
       if (!client || !state.invitationId) {
         toast("저장된 초대를 찾을 수 없어요.");
@@ -1202,7 +1286,7 @@ export function OrbitProduct({
           invitationId: state.invitationId,
           userId: data.user.id,
           answers,
-          candidate: candidates[selected],
+          candidate: state.side === "supply" ? activeCandidate(state) : candidates[selected],
         });
       } catch (error) {
         toast(error instanceof Error ? error.message : "답변과 궁합 결과를 저장하지 못했어요.");
@@ -1215,7 +1299,8 @@ export function OrbitProduct({
     go("/match");
   };
   const rejectInvite = async (reason: string) => {
-    if (!demo) {
+    const sample = isSupplierSample(state);
+    if (!demo && !sample) {
       const client = supabase;
       if (!client || !state.invitationId) {
         toast("저장된 초대를 찾을 수 없어요.");
@@ -1228,18 +1313,26 @@ export function OrbitProduct({
         return;
       }
     }
+    if (sample) {
+      update({ sampleInviteAvailable: false, inviteStatus: null, rejectReason: reason, answers: [] });
+      track("respond_reject", "sample");
+      toast("MVP 예시 초대를 거절했어요.");
+      go("/home/invites");
+      return;
+    }
     update({ inviteStatus: "rejected", rejectReason: reason, selected: null });
     track("respond_reject", reason);
     notify("초대가 거절됐어요", "다른 후보를 선택할 수 있습니다", "/select");
     go("/select");
   };
   const signAgreement = async (side: "demand" | "supply") => {
-    if (!demo && (!state.projectId || !state.invitationId)) {
+    const sample = isSupplierSample(state);
+    if (!demo && !sample && (!state.projectId || !state.invitationId)) {
       toast("저장된 프로젝트와 초대를 찾을 수 없어요.");
       return;
     }
     let agreementId = state.agreementId;
-    if (!demo) {
+    if (!demo && !sample) {
       const client = supabase;
       if (!client) {
         toast("Supabase 연결을 확인해 주세요.");
@@ -1290,7 +1383,7 @@ export function OrbitProduct({
   }
 
   let content: React.ReactNode;
-  if (screen === "enter") content = <Enter state={state} update={update} go={go} beginDemand={beginDemand} beginSupply={beginSupply} />;
+  if (screen === "enter") content = <Enter state={state} go={go} beginDemand={beginDemand} beginSupply={beginSupply} />;
   else if (screen === "start") content = <Start state={state} update={update} go={go} />;
   else if (screen === "translating") content = <Translating go={go} />;
   else if (screen === "project") content = <Project state={state} update={update} go={go} toast={toast} />;
@@ -1303,7 +1396,7 @@ export function OrbitProduct({
   else if (screen === "agreement") content = <Agreement state={state} update={update} go={go} sign={signAgreement} />;
   else if (screen === "handoff") content = <Handoff go={go} />;
   else if (["home", "home/projects", "home/invites", "profile", "notifications"].includes(screen)) content = <AppShell screen={screen} state={state} go={go} logout={() => void logout()} demo={demo} beginDemand={beginDemand} beginSupply={beginSupply} />;
-  else content = <Enter state={state} update={update} go={go} beginDemand={beginDemand} beginSupply={beginSupply} />;
+  else content = <Enter state={state} go={go} beginDemand={beginDemand} beginSupply={beginSupply} />;
 
   return (
     <ProductBasePathContext.Provider value={basePath}>

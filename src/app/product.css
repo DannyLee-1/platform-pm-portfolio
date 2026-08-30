@@ -756,6 +756,35 @@
 .op-center-note { display: block; margin-top: 9px; color: var(--op-muted); font-size: 10px; text-align: center; }
 .op-center-note.left { text-align: left; }
 
+.op-perspective-note {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 18px;
+  padding: 12px 14px;
+  border: 1px solid var(--op-demand-line);
+  border-radius: 10px;
+  background: var(--op-demand-bg);
+}
+
+.op-perspective-note span {
+  flex: 0 0 auto;
+  padding: 5px 9px;
+  border-radius: 99px;
+  color: #fff;
+  background: var(--op-demand);
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.op-perspective-note p {
+  margin: 0;
+  color: var(--op-navy-2);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.55;
+}
+
 .op-rejected {
   margin-bottom: 20px;
   padding: 11px 14px;

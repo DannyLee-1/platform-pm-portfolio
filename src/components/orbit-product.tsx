@@ -617,10 +617,16 @@ function SelectCandidate({
 }) {
   return (
     <main className="op-page">
-      <ProductHeader context="함께할 팀원" />
+      <ProductHeader context={state.inviteStatus === "rejected" ? "수요자 · 후보 재선택" : "함께할 팀원"} />
       <div className="op-container">
+        {state.inviteStatus === "rejected" && (
+          <section className="op-perspective-note" aria-label="수요자 화면 안내">
+            <span>수요자 화면</span>
+            <p>공급자의 거절 이후, 아이디어를 등록한 수요자가 다른 후보를 선택하는 단계입니다.</p>
+          </section>
+        )}
         <Progress step={2} />
-        {state.inviteStatus === "rejected" && <aside className="op-rejected">초대가 거절됐어요{state.rejectReason ? ` · ${state.rejectReason}` : ""}. 다른 후보를 선택하세요.</aside>}
+        {state.inviteStatus === "rejected" && <aside className="op-rejected">공급자가 초대를 거절했어요{state.rejectReason ? ` · ${state.rejectReason}` : ""}. 다른 후보를 선택하세요.</aside>}
         <span className="op-kicker">팀원 선택</span>
         <h1>함께할 팀원을 골라주세요</h1>
         <p className="op-lead">지금은 강점과 보완점으로 판단하세요.</p>
